@@ -56,12 +56,11 @@ namespace DDLCPlusAccess
                 if (historyEntries.Count == 0)
                 {
                     ScreenReaderMod.Logger?.Msg("History screen opened - empty");
-                    ClipboardUtils.OutputGameText("", "History is empty", TextType.Menu);
+                    ClipboardUtils.OutputGameText("", Loc.Get("ui.history_empty"), TextType.Menu);
                 }
                 else
                 {
-                    string openMessage =
-                        $"History, {historyEntries.Count} entries. Use up and down arrows to navigate.";
+                    string openMessage = Loc.Get("ui.history_open", historyEntries.Count);
                     ScreenReaderMod.Logger?.Msg(
                         $"History screen opened with {historyEntries.Count} entries"
                     );
@@ -112,7 +111,7 @@ namespace DDLCPlusAccess
             }
             else
             {
-                ClipboardUtils.OutputGameText("", "Beginning of history", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("ui.history_start"), TextType.Menu);
             }
         }
 
@@ -129,7 +128,7 @@ namespace DDLCPlusAccess
             }
             else
             {
-                ClipboardUtils.OutputGameText("", "End of history", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("ui.history_end"), TextType.Menu);
             }
         }
 
@@ -145,6 +144,11 @@ namespace DDLCPlusAccess
             var entry = historyEntries[currentHistoryIndex];
             string speaker = GetSpeakerName(entry);
             string text = GetEntryText(entry);
+
+            // Same treatment as live dialogue: glitch symbols become a short marker.
+            if (GlitchText.ContainsGlitch(speaker))
+                speaker = Loc.Get("ui.glitched_name");
+            text = GlitchText.Clean(text, Loc.Get("ui.glitched_text"));
 
             if (string.IsNullOrEmpty(speaker))
             {

@@ -119,13 +119,16 @@ namespace DDLCPlusAccess
         {
             try
             {
-                if (Input.GetKeyDown(KeyCode.R))
+                // Letter hotkeys stay off while the player types their name.
+                bool typingName = IsTypingName();
+
+                if (!typingName && Input.GetKeyDown(KeyCode.R))
                 {
                     ClipboardUtils.RepeatCurrentDialogue();
                 }
 
                 // D: repeat the last scene description
-                if (Input.GetKeyDown(KeyCode.D))
+                if (!typingName && Input.GetKeyDown(KeyCode.D))
                 {
                     SceneDescriber.RepeatLastDescription();
                 }
@@ -180,6 +183,19 @@ namespace DDLCPlusAccess
             catch (Exception ex)
             {
                 Logger.Error($"Error in OnUpdate: {ex.Message}");
+            }
+        }
+
+        private static bool IsTypingName()
+        {
+            try
+            {
+                var screens = RenpyScreenManager.Instance;
+                return screens != null && screens.IsScreenShowing(RenpyScreenID.NameInputScreen);
+            }
+            catch
+            {
+                return false;
             }
         }
 
