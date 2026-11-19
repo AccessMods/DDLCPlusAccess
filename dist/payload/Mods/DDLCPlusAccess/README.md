@@ -1,0 +1,187 @@
+# DDLCPlusAccess
+
+A comprehensive accessibility mod for **Doki Doki Literature Club Plus** that provides screen reader support for blind and visually impaired players. This MelonLoader mod intercepts game text and outputs it directly to your screen reader using speech synthesis.
+
+## Features
+
+### Complete Game Coverage
+
+- **Character Dialogue**: All character speech with localized speaker names
+- **History Screen**: Navigate through dialogue history with Up/Down arrows
+- **Menu Navigation**: Main menu, preferences, save/load screens
+- **Poetry Minigame**: Word selection feedback and character reactions
+- **File Browser**: Directory navigation with item counts and file operations
+- **File Content Viewer**: Line-by-line navigation of text files with Up/Down arrows
+- **Side Stories**: Accessible launcher navigation and story selection
+- **Poems**: Formatted poem content including special poems with visual descriptions
+- **Gallery**: Full descriptions for all CGs, wallpapers, poems, backgrounds, sketches, promotional art, and secret images
+- **Mail App**: Email content and navigation
+- **Jukebox**: Music player with track information and position announcements
+- **System Messages**: Game notifications, boot sequences, and status updates
+- **Scene Descriptions**: Spoken audio descriptions of what happens on screen: locations, story pictures (CGs), and every visual-only event, including the horror and glitch scenes of Acts 1-4, rare/secret events (Natsuki's ghost, the ghost menu, the early splash, the Act 3 jump scare) and DDLC Plus side stories and credits
+- **Glitches Explained**: Glitched text, names, menu buttons (such as Act 2's garbled "New Game") and poem-game words are described instead of read out as random symbols; lines shown in the distorted "edited" font are marked
+- **12 Languages**: Everything the mod says follows the game's language: English, Spanish (Spain and Latin America), French, German, Italian, Brazilian Portuguese, Russian, Japanese, Korean, and Simplified and Traditional Chinese
+
+### Accessibility Features
+
+- **Direct Speech Output**: Text spoken immediately via UnityAccessibilityLib
+- **Speaker Identification**: Character names always included in dialogue
+- **Duplicate Prevention**: Smart filtering to avoid repeated announcements
+- **Real-time Processing**: Text appears immediately as displayed in game
+- **Image Descriptions**: Comprehensive descriptions for all gallery content
+- **No Configuration Required**: Works out of the box with optimal settings
+
+### Keyboard Shortcuts
+
+| Key         | Function                                                |
+| ----------- | ------------------------------------------------------- |
+| **R**       | Repeat last dialogue                                    |
+| **D**       | Repeat last scene description                           |
+| **C**       | Announce data collection percentage (Settings app only) |
+| **P**       | Announce current position in playlist (Jukebox only)    |
+| **Up/Down** | Navigate history entries or file content lines          |
+
+## Installation
+
+### Prerequisites
+
+- **Doki Doki Literature Club Plus** (Steam version)
+- Windows operating system
+
+### Easy Installation (Recommended)
+
+Use the **[AccessMods Installer](https://github.com/AccessMods/AccessModsInstaller/releases)** for one-click installation:
+
+1. Download `AccessModsInstaller.exe` from the [releases page](https://github.com/AccessMods/AccessModsInstaller/releases)
+2. Run the installer and select **Doki Doki Literature Club Plus**
+3. The installer will automatically:
+   - Find your game installation
+   - Install MelonLoader if needed
+   - Download and install the latest mod files
+
+### Manual Installation
+
+If you prefer to install manually, you'll also need **MelonLoader** installed in your DDLC Plus directory.
+
+#### Installation Steps
+
+1. Download the mod ZIP from the [latest release](https://github.com/AccessMods/DDLCPlusAccess/releases)
+2. Extract the contents and copy files to your DDLC Plus installation:
+   - `DDLCPlusAccess.dll` → `[DDLC Plus Install Path]\Mods\`
+   - `UnityAccessibilityLib.dll` → `[DDLC Plus Install Path]\`
+   - `UniversalSpeech.dll` → `[DDLC Plus Install Path]\`
+   - `nvdaControllerClient.dll` → `[DDLC Plus Install Path]\`
+3. Launch DDLC Plus - MelonLoader will automatically load the mod
+
+### Verification
+
+- Check MelonLoader console for "DDLCPlusAccess initialized!" message
+- Start a new game or load a save - text should be spoken by your screen reader
+- Press **R** to repeat the last dialogue
+
+## Usage
+
+### Basic Operation
+
+The mod works automatically once installed. All game text is spoken directly to your screen reader.
+
+### History Navigation
+
+When viewing dialogue history (accessible via the game's history button), use Up/Down arrow keys to navigate through previous dialogue entries.
+
+### File Content Navigation
+
+When viewing text files in the file browser, use Up/Down arrow keys to navigate line by line through the file content.
+
+## Development
+
+### Building the Mod
+
+```bash
+# Standard build
+dotnet build
+
+# Clean build
+dotnet clean && dotnet build
+
+# Release build
+dotnet build --configuration Release
+```
+
+The build automatically copies the mod files to the game's Mods folder.
+
+### Dependencies
+
+- .NET Framework 4.7.2
+- UnityAccessibilityLib (NuGet package)
+- MelonLoader framework
+- Harmony patching library
+- Unity Engine APIs
+- DDLC/RenpyParser assemblies
+
+### Project Structure
+
+- `Main.cs` - Main mod entry point and initialization
+- `ClipboardUtils.cs` - Speech output wrapper for UnityAccessibilityLib
+- `DescriptionManager.cs` - Centralized image description system
+- `GameTextType.cs` - Text type definitions and mapping
+- `TextHelper.cs` - Text cleaning and formatting utilities
+- `SpeakerMapping.cs` - Character name resolution
+- `Patches/` - Harmony patches for different game systems
+- `ImageDescriptions/` - Gallery image description data
+- `SceneDescriptions/` - Scene/event description engine (`SceneDescriber.cs`) and its trigger data (`SceneEvents.txt`, `SceneRules.txt`)
+- `Localization/` - Localized mod strings, one file per game language (`en-us.txt` is the master)
+- `tools/` - Offline tools to decode the game's compiled script and validate scene triggers (see `tools/README.md`)
+
+### Harmony Patches
+
+| Patch File              | Purpose                               |
+| ----------------------- | ------------------------------------- |
+| `DialoguePatches.cs`    | Character dialogue and narrative text |
+| `HistoryPatches.cs`     | History screen navigation             |
+| `MenuPatches.cs`        | Menu navigation and UI interactions   |
+| `LauncherPatches.cs`    | DDLC Plus launcher accessibility      |
+| `FileBrowserPatches.cs` | File system navigation                |
+| `FileContentPatches.cs` | File content viewing                  |
+| `PoetryPatches.cs`      | Poetry minigame interactions          |
+| `PoemPatches.cs`        | Poem reading and formatting           |
+| `SideStoriesPatches.cs` | Side story navigation                 |
+| `GalleryPatches.cs`     | Gallery navigation and descriptions   |
+| `ImagePatches.cs`       | Background/CG announcements           |
+| `JukeboxPatches.cs`     | Music player accessibility            |
+| `MailPatches.cs`        | Email application                     |
+| `SelectorPatches.cs`    | Generic selector UI                   |
+| `TextPatches.cs`        | Fallback text capture                 |
+
+### Adding Scene Descriptions
+
+1. Decode the game script with the tools in `tools/` and find the line in `script.txt`.
+2. Add a description key to `Localization/en-us.txt` and every other language file.
+3. Trigger it from `SceneDescriptions/SceneEvents.txt` (exact `block:line`) or `SceneRules.txt` (by image or effect name).
+4. Run `tools/validate_scene_events.py` to check line indices and translations.
+
+## Compatibility
+
+### Supported Versions
+
+- **DDLC Plus**: All current versions
+- **MelonLoader**: Compatible with standard MelonLoader installations
+- **Screen Readers**: Works with NVDA, JAWS, Narrator, and other Windows screen readers via SAPI/UniversalSpeech
+
+### Known Limitations
+
+- Windows-only (uses Windows speech APIs)
+- Requires MelonLoader framework
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For issues or questions:
+
+- Check MelonLoader console for error messages
+- Verify all DLL files are in the correct locations
+- Ensure DDLC Plus and MelonLoader are properly installed
+- Report issues at the project repository

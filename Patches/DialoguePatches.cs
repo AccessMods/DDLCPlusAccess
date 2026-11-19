@@ -39,8 +39,20 @@ namespace DDLCPlusAccess
                 // Get the localized speaker name using the game's exact logic
                 string speakerName = SpeakerMapping.GetLocalizedSpeakerName(tag, character);
 
-                // Clean the text
-                string cleanedText = TextHelper.CleanText(text);
+                // In Acts 2-3 some names are replaced by random glitch symbols.
+                if (GlitchText.ContainsGlitch(speakerName))
+                    speakerName = Loc.Get("ui.glitched_name");
+
+                // Clean the text, replacing generated glitch symbols with a short marker
+                string cleanedText = GlitchText.Clean(
+                    TextHelper.CleanText(text),
+                    Loc.Get("ui.glitched_text")
+                );
+
+                // Lines shown in the game's "edited" style (Monika tampering with the script)
+                // appear in a distorted font; say so.
+                if (SceneDescriber.EditedStyleActive)
+                    cleanedText = Loc.Get("ui.distorted", cleanedText);
 
                 // Log for debugging
                 ScreenReaderMod.Logger?.Msg(

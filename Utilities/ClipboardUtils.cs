@@ -1,19 +1,17 @@
-using UnityAccessibilityLib;
-
 namespace DDLCPlusAccess
 {
     /// <summary>
-    /// Wrapper around MelonAccessibilityLib's SpeechManager that maintains API compatibility
+    /// Wrapper around SpeechService that maintains API compatibility
     /// with existing patch files.
     /// </summary>
     public static class ClipboardUtils
     {
         /// <summary>
-        /// Repeats the last dialogue or narrator text using SpeechManager.
+        /// Repeats the last dialogue or narrator text.
         /// </summary>
         public static void RepeatCurrentDialogue()
         {
-            SpeechManager.RepeatLast();
+            SpeechService.RepeatLast();
         }
 
         /// <summary>
@@ -36,11 +34,11 @@ namespace DDLCPlusAccess
             // For dialogue type, use Output with speaker; otherwise use Announce
             if (textType == TextType.Dialogue && !string.IsNullOrEmpty(speaker))
             {
-                SpeechManager.Output(speaker, text, mappedType);
+                SpeechService.Output(speaker, text, mappedType);
             }
             else
             {
-                SpeechManager.Announce(text, mappedType);
+                SpeechService.Announce(text, mappedType);
             }
         }
 
@@ -53,7 +51,7 @@ namespace DDLCPlusAccess
             if (string.IsNullOrEmpty(text))
                 return;
 
-            SpeechManager.Announce(text, GameTextType.Poem);
+            SpeechService.Announce(text, GameTextType.Poem);
         }
     }
 }

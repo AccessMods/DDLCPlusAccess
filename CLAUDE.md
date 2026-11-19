@@ -26,6 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Handles scene loading events
 - Implements hotkeys:
   - **R key**: Repeat last dialogue (`SpeechManager.RepeatLast()`)
+  - **D key**: Repeat last scene description (`SceneDescriber.RepeatLastDescription()`)
   - **C key**: Announce data collection percentage (in Settings app)
   - **P key**: Announce jukebox position (in Jukebox app)
   - **Up/Down arrows**: Navigate history entries (when history screen has focus) or lines in file content viewer
@@ -56,6 +57,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Replicates game's exact logic from `RenpyWindowManager.Say` for accurate speaker names
 - Handles player name (MC) via `GetPlayerName()`
 - `ShouldFilterText()` - Filters developer commentary and technical strings
+
+**SceneDescriptions/SceneDescriber.cs** - Audio descriptions of on-screen events
+
+- Harmony postfix on `RenpyCallstackEntry.Next` sees every script line the game runs (block name + line index)
+- `SceneEvents.txt` (embedded): exact `block:line | expected content | key[:arg]` triggers for one-off events
+- `SceneRules.txt` (embedded): generic rules by `scene:`/`show:`/`regex:`/`expr:` name (locations, CGs, special sprites, screen tears); per-key cooldowns; locations only announced when they change
+- Tracks the "edited" dialogue style (Monika's distorted font) so `DialoguePatches` can mark those lines
+- Output type `GameTextType.Description` (107)
+
+**Localization/Loc.cs** - Localized mod strings
+
+- `Loc.Get(key, args)`; language from `Renpy.GetCurrentLanguagePrefix()` (en-us, spa, spa-m9, fr-fr, de-de, it-it, pt-br, pyc, ko, ja, zh-cn, zh-tw)
+- One embedded `Localization/<lang>.txt` per language (`key = value`); `en-us.txt` is the master, missing keys fall back to English
+- New user-facing strings must be added to all 12 files
+
+**Utilities/GlitchText.cs** - Detects the game's random glitch text (Latin Extended-A + rare symbols) and replaces it with a localized marker
 
 **DescriptionManager.cs** - Centralized image description system
 
@@ -116,7 +133,8 @@ Text cleaning is handled by UnityAccessibilityLib's `TextCleaner` with custom pa
 - **Harmony** - Runtime method patching
 - **Unity Engine** - Game engine APIs
 - **DDLC/RenpyParser** - Game-specific assemblies
-- Decompiled DDLC assemblies in `../Decomp` folder for reference
+- Decompile `DDLC.dll` / `Assembly-CSharp.dll` with `ilspycmd` for reference (not kept in the repo)
+- Build finds the game at `C:\Program Files (x86)\Steam\...` or `S:\steam\...`; override with `-p:GamePath=...`
 
 ## Development Guidelines
 
@@ -126,6 +144,13 @@ Text cleaning is handled by UnityAccessibilityLib's `TextCleaner` with custom pa
 2. Create Harmony patch in relevant Patches file
 3. Call `ClipboardUtils.OutputGameText(speaker, text, TextType.X)`
 4. Library handles text cleaning and duplicate detection automatically
+
+### Adding Scene/Event Descriptions
+
+1. Decode the script with `tools/` (see `tools/README.md`) and locate the line in `script.txt`
+2. Add the description key to `Localization/en-us.txt` and all other language files
+3. Reference it from `SceneDescriptions/SceneEvents.txt` or `SceneRules.txt`
+4. Run `python tools/validate_scene_events.py tools . <work>/script.txt`
 
 ### Adding New Image Descriptions
 

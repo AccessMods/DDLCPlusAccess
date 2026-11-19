@@ -1,0 +1,182 @@
+# DDLC Plus Access - Français (France).
+# Format : key = value. Une entrée par ligne. "\n" est un saut de ligne. {0}, {1} sont des emplacements.
+# Chaque fichier de langue doit contenir les mêmes clés que le fichier anglais.
+
+# ---------------------------------------------------------------- interface générale
+ui.launcher = Lanceur de DDLC Plus
+ui.mod_loaded = DDLC Plus Access chargé. Les descriptions de scènes sont prêtes, bonne partie !
+ui.main_menu = Menu principal
+ui.preferences_menu = Menu des préférences
+ui.save_load_menu = Menu de sauvegarde et de chargement
+ui.choose_one = Choisis parmi 1 option
+ui.choose_many = Choisis parmi {0} options
+ui.glitched_text = (texte corrompu)
+ui.glitched_name = (nom corrompu)
+ui.distorted = Texte déformé : {0}
+ui.new_game_glitched = Nouvelle partie. Le texte du bouton est une suite brouillée de symboles corrompus.
+ui.glitched_button = Un bouton dont le texte est une suite brouillée de symboles corrompus.
+ui.no_description = Pas encore de description pour cette scène.
+ui.data_collected = Données collectées : {0} pour cent
+ui.data_unavailable = Pourcentage de données collectées indisponible
+ui.data_error = Erreur lors de la récupération du pourcentage de données collectées
+ui.jukebox_none = Aucun lecteur du juke-box actif
+ui.jukebox_no_track = Aucun morceau en cours de lecture
+ui.jukebox_no_info = Aucune information disponible sur le morceau
+ui.jukebox_stopped = Arrêté sur {0}
+ui.jukebox_position = {0}, {1} sur {2}
+ui.jukebox_error = Erreur lors de la récupération de la position de lecture
+
+# ---------------------------------------------------------------- mini-jeu des poèmes
+poetry.start = Mini-jeu des poèmes lancé. Navigue avec les flèches et appuie sur Entrée pour choisir des mots.
+poetry.likes_sayori = Sayori aime ce mot
+poetry.likes_natsuki = Natsuki aime ce mot
+poetry.likes_yuri = Yuri aime ce mot
+poetry.and2 = {0} et {1}
+poetry.and3 = {0}, {1} et {2}
+poetry.progress = Progression : {0}/20
+poetry.glitch_word = Un mot corrompu : une longue suite brouillée de symboles aléatoires.
+poetry.monika_word = Monika. Tous les mots de la page sont le prénom de Monika, avec certaines lettres corrompues ou manquantes.
+poetry.glitch_selected = L'écran clignote en blanc et la musique se déforme. Les autocollants de Natsuki et de Yuri disparaissent, remplacés par un autocollant de Yuri cassé, qui bugue.
+poetry.sticker_monika = L'autocollant chibi de Monika sautille et fait coucou de la main.
+poetry.sticker_yuri_cut = L'autocollant de Yuri sautille. Ses petits bras de chibi sont maintenant couverts d'entailles rouges.
+poetry.sticker_yuri_creepy = L'autocollant de Yuri sautille, mais pendant un instant son visage de chibi a des yeux noirs et creux et une bouche noire gribouillée.
+
+# ---------------------------------------------------------------- illustration du menu principal
+menu.art_normal = À côté du menu, une illustration montre Sayori, Natsuki, Yuri et Monika dans leur uniforme scolaire, sur un fond rose.
+menu.art_act2 = L'illustration du menu n'est pas normale. Là où se tenait Sayori, il y a une silhouette brisée, déchirée en bandes décalées, à travers lesquelles on aperçoit le visage de Monika. Natsuki, Yuri et Monika se tiennent à côté.
+menu.art_act4 = Monika a disparu de l'illustration du menu. Il ne reste que Sayori, Natsuki et Yuri.
+menu.art_none = Il n'y a aucune illustration à côté du menu, seulement un fond vide.
+menu.ghost = L'écran est blanc et silencieux. Il n'y a aucun bouton de menu. Quatre silhouettes sont dessinées en noir et blanc très contrastés : les membres du club, en ombres noires, avec des yeux noirs et creux et des bouches béantes. L'une d'elles tend la main vers toi. Appuyer sur n'importe quelle touche y met fin.
+menu.ghost_flash = La silhouette fantomatique en noir et blanc de Monika apparaît brièvement à l'écran, puis le jeu se ferme.
+
+# ---------------------------------------------------------------- lieux
+bg.residential_day = Scène : une rue résidentielle calme par une journée ensoleillée, bordée de maisons.
+bg.class_day = Scène : une salle de classe en journée, avec des rangées de pupitres face à un tableau noir.
+bg.corridor = Scène : un couloir de lycée, avec des portes de classes d'un côté et des fenêtres de l'autre.
+bg.club_day = Scène : la salle du club de littérature, une salle de classe ensoleillée avec des pupitres, un tableau noir et un placard de rangement au fond.
+bg.club_skill = Scène : la salle du club de littérature. Quelque chose cloche, subtilement : les pupitres et les chaises ne sont pas tout à fait à leur place, comme si la salle avait été réaménagée pendant la nuit.
+bg.closet = Scène : le placard de rangement de la salle du club, ses étagères remplies de livres, de fournitures et des mangas de Natsuki.
+bg.house = Scène : dehors, devant les maisons de ta rue.
+bg.kitchen = Scène : la cuisine d'une maison.
+bg.bedroom = Scène : ta chambre.
+bg.sayori_bedroom = Scène : la chambre de Sayori : un lit avec une grosse peluche de vache, un bureau, un placard et une fenêtre qui laisse entrer la lumière du jour.
+bg.music_room = Scène : la salle de musique.
+bg.pmusicroom = Scène : la salle de musique du lycée, avec un piano à queue devant un tableau noir.
+bg.pstairwell = Scène : une cage d'escalier tranquille, fermée pour travaux, où personne d'autre ne vient.
+bg.tos = Un écran d'avertissement pâle, avec en arrière-plan un croquis estompé des quatre membres du club.
+
+# ---------------------------------------------------------------- images (CG)
+cg.n_cg1 = Image : Natsuki est assise par terre à côté de toi, adossée au mur près du placard, un manga ouvert sur les genoux pour que vous puissiez le lire tous les deux.
+cg.n_cg2 = Image : Dans la pénombre du placard, Natsuki est debout sur une chaise, dos à toi, et lève une lourde boîte vers l'étagère du haut. Elle te regarde par-dessus son épaule, les joues rouges.
+cg.n_cg3 = Image : Dans la cuisine, tu tiens les poignets de Natsuki. Elle porte un T-shirt blanc avec un petit chat rose dessus, les joues rouges, un doigt couvert de glaçage.
+cg.s_cg1 = Image : Vue d'en bas, Sayori se penche au-dessus de toi, ses grands yeux bleus écarquillés, en rougissant, pendant que tu boutonnes le bouton du haut de sa veste. Derrière elle, une salle de classe ensoleillée.
+cg.s_cg2 = Image : Sayori est assise par terre dans la salle de classe, adossée à l'encadrement de la porte, une main sur une bosse au front. Une boîte de crayons de couleur est renversée à côté d'elle.
+cg.s_cg3 = Image : Dehors, dans une rue ensoleillée, Sayori te serre fort dans ses bras. Par-dessus ton épaule, son visage est couvert de larmes.
+cg.y_cg1 = Image : Yuri et toi êtes assis côte à côte et partagez un même livre. Yuri, rougissante, tient le côté gauche du livre, son visage tout près du tien.
+cg.y_cg2 = Image : Yuri de profil sur un fond sombre, éclairée par le haut, tenant un livre. De minuscules grains de poussière flottent dans la lumière, et un morceau de chocolat attend près de ses lèvres.
+cg.y_cg3 = Image : Dans ta chambre, Yuri te regarde, les yeux écarquillés et les joues rouges, pendant que tu lui tamponnes le visage et le cou avec une serviette. Elle porte un pull beige à col roulé.
+cg.nm = Image : Dans la salle de musique ensoleillée, Monika est assise au piano, les yeux fermés, en train de jouer. Natsuki est accoudée au piano, le menton dans la main, et la regarde.
+cg.ny = Image : En bas de la cage d'escalier, Natsuki et Yuri sont assises ensemble par terre. Natsuki s'appuie contre l'épaule de Yuri pendant que Yuri lit un livre posé sur ses genoux.
+cg.sm = Image : Dans une pièce sombre aux rideaux rouges, Monika serre Sayori contre elle. Sayori pose la tête contre la poitrine de Monika, les yeux fermés.
+cg.sn = Image : Dans une salle de classe ensoleillée, près d'un tableau couvert de feuilles, Sayori sourit doucement à Natsuki, qui rougit et détourne le regard en cachant une feuille de papier dans son dos.
+cg.sy = Image : Yuri et Sayori sont assises par terre entre les pupitres de la salle de classe, un livre rouge posé à côté d'elles. Sayori se penche tout près de Yuri pour la réconforter.
+cg.ym = Image : Monika et Yuri sont assises ensemble à un même pupitre. Monika appuie la joue sur sa main et sourit en regardant Yuri écrire.
+cg.credits_sayori = Image : Sayori, en pied, fait joyeusement coucou de la main sur un fond bleu à pois.
+cg.credits_natsuki = Image : Natsuki, en pied, les bras croisés, sur un fond rose à pois.
+cg.credits_yuri = Image : Yuri, en pied, tenant un livre rouge, sur un fond violet à pois.
+cg.credits_monika = Image : Monika, en pied, tenant une feuille de papier, sur un fond vert à pois.
+cg.epilogue = Image : Un selfie de tout le club. Yuri, Natsuki qui fait le signe de la paix, Monika et Sayori se serrent les unes contre les autres, toutes souriantes. C'est Sayori qui tient l'appareil.
+
+# ---------------------------------------------------------------- effets généraux
+fx.screen_tear = L'écran se déchire en tranches horizontales qui glissent et buguent.
+fx.invert = Les couleurs de l'écran s'inversent un instant.
+fx.flash = Un flash blanc remplit l'écran.
+fx.heartbeat = L'écran pulse lentement, au rythme d'un battement de cœur.
+fx.end = Les mots The End apparaissent sur un écran noir.
+fx.splash = Le logo de Team Salvato apparaît sur un écran blanc.
+fx.new_file = Un nouveau fichier est apparu parmi les fichiers du jeu : {0}
+fx.new_file_iiii = Un nouveau fichier est apparu parmi les fichiers du jeu. Son nom n'est qu'une longue suite de lettres i.
+
+# ---------------------------------------------------------------- sprites spéciaux
+spr.yuri_yandere = L'expression de Yuri devient démente : des yeux écarquillés et brillants aux pupilles minuscules, les joues rouges et un sourire maniaque.
+spr.yuri_glitch = L'image de Yuri se déchire en bandes sombres et vacillantes de bugs.
+spr.yuri_glitch2 = Yuri apparaît, mais son image vacille entre des images cassées avant de se stabiliser.
+spr.yuri_oneeye = Yuri te regarde avec un œil plissé, fermé, et un sourire étrange, de travers.
+spr.yuri_dragon = Pendant une fraction de seconde, l'image de Yuri se change en une autre fille : une fille en uniforme rouge aux yeux rouges luisants.
+spr.yuri_eyes1 = Le visage de Yuri remplit l'écran, ses yeux révulsés, tout blancs, et elle sourit toujours.
+spr.natsuki_glitch1 = L'image de Natsuki bugue : elle s'étire, se répète et saute de haut en bas plusieurs fois avant de redevenir normale d'un coup.
+spr.natsuki_scream = Natsuki hurle, le visage déformé par l'horreur.
+spr.natsuki_vomit = Natsuki se plie en deux et vomit dans ses mains.
+spr.natsuki_ghost = Le visage de Natsuki est complètement vide : pas d'yeux, pas de bouche, seulement une peau lisse et vide.
+spr.monika_g1 = Monika entre. Pendant un instant, une partie de son corps est découpée par des blocs noirs de bug, puis elle redevient normale.
+spr.monika_g2 = Pendant un instant, l'image de Monika est brisée en un fouillis de carrés mélangés et décalés.
+spr.sayori_glitch = L'image de Sayori est horriblement corrompue : déchirée en bandes horizontales vacillantes, et à travers les déchirures, on aperçoit le visage de Monika.
+spr.sayori_end_glitch = L'image de Sayori se désagrège en un fouillis vacillant de carrés mélangés et décalés.
+
+# ---------------------------------------------------------------- Acte 1
+ev.ch0_kill = Quelque chose ne va pas. Monika est introuvable. Sayori est seule et te fixe, son expression se remplissant lentement d'horreur.
+ev.ch0_kill_end = Le jeu se ferme brusquement tout seul.
+ev.s_kill = La chambre de Sayori. Sayori est pendue à une corde attachée au plafond, le nœud coulant serré autour du cou. Son corps pend, inerte, dans sa chemise d'école blanche et son short rouge, ses pieds nus ballant au-dessus du sol, son visage pâle et vide, le bout de ses doigts rouge et à vif. La peluche de vache est posée sur son lit derrière elle.
+ev.s_kill_zoom = L'image bugue et zoome sur le visage sans vie de Sayori. Des parasites et l'obscurité envahissent l'image par les bords.
+ev.s_kill_splash = L'écran clignote en blanc et l'écran titre du jeu lui-même apparaît, brisé en fragments corrompus.
+ev.s_kill_splash2 = Des morceaux corrompus de l'écran titre défilent, ne montrant que Monika, Natsuki et Yuri.
+ev.s_kill_exception = La scène est remplacée par un simple écran d'erreur gris, comme si le jeu avait planté.
+ev.s_kill_early = Une image en noir et blanc très contrastée : Sayori pendue à un nœud coulant, les yeux creux et vides, sur un fond blanc rempli de parasites.
+
+# ---------------------------------------------------------------- Acte 2
+ev.ch21_static = À mesure que la dispute s'envenime, des parasites envahissent la scène. Les bords de l'écran s'assombrissent et vacillent, et toute l'image tremble.
+ev.ch21_menu_stuck = Quand tu essaies de choisir, l'écran se déchire. Les boutons de choix se figent sur place et rien ne peut être sélectionné. Monika parle pendant qu'ils restent bloqués à l'écran.
+ev.ch22_yuri_half = L'image de Yuri se divise brièvement en deux : une copie cassée d'elle glisse sur le côté et disparaît.
+ev.ch22_natsuki_rects = Des rectangles noirs vacillants couvrent les yeux de Natsuki, et une bouche souriante détachée de tout corps tressaute sur son visage. Ce qu'elle dit n'est qu'une suite de mots aléatoires sans aucun sens.
+ev.ch22_faint = L'écran tangue, pris de vertige. Des veines rouges palpitantes envahissent les bords et la vue pulse en rouge, comme si tu allais t'évanouir.
+ev.ch22_yuri_head = Tout devient noir sauf le visage de Yuri, qui vacille et se déchire en bugs bleus et blancs criards.
+ev.ch22_blood_eye = Du sang jaillit soudain de l'œil de Yuri et coule sur son visage.
+ev.ch22_blood_eye2 = Du sang coule à nouveau de l'œil de Yuri pendant qu'elle continue de parler calmement.
+ev.ch22_monika_dark = La pièce s'assombrit et prend une teinte rouge foncé, et des parasites remplissent l'écran pendant que Monika te parle seule à seul.
+ev.ch22_black = L'écran passe brusquement au noir.
+ev.ch23_noface = Un flash : sur un écran blanc, une image cassée de Sayori sans visage. Seuls des fragments épars de ses yeux et de ses mains flottent dans l'espace vide.
+ev.ch23_pupils = L'écran devient blanc. Les immenses yeux écarquillés de Yuri remplissent l'écran, ses pupilles bougeant dans tous les sens, pendant que des parasites vacillent.
+ev.ch23_all_monika = Toutes les options du menu de choix disent maintenant Monika.
+ev.ch23_paper_glitch = Le poème de Monika bugue : la page est déchirée par des barres rouges et vertes de couleurs corrompues.
+ev.bsod = Un écran bleu de plantage apparaît, comme une erreur d'ordinateur : un grand visage triste, ":(", et le texte «Un problème est survenu, nécessitant un redémarrage de votre ordinateur. Nous recueillons quelques informations avant de le redémarrer pour vous. (Progression : 0 %)»
+ev.n_blackeyes = Pendant un instant, les yeux de Natsuki deviennent des trous noirs et du sang en coule à flots.
+ev.n_cg1b = L'image bugue. Natsuki s'affaisse contre toi, et son visage est soudain vide et sans traits, délavé jusqu'au blanc. Ses paroles sortent sous forme de texte noir corrompu, illisible.
+ev.y_cuts = Yuri sursaute. Elle tient son avant-bras, couvert d'entailles fraîches qui saignent.
+ev.rewind = Des parasites inondent l'écran et tout se rembobine, la scène se rejouant à l'envers comme si ce que tu venais de voir n'avait jamais eu lieu.
+ev.closet_dark = La porte du placard claque. Il fait presque complètement noir ; tu distingues à peine Yuri, serrée tout contre toi.
+ev.y_eyes_close = Les yeux de Yuri remplissent tout l'écran en très gros plan, te fixant, ses pupilles tremblantes.
+ev.closet_open = La porte du placard s'ouvre et la lumière revient. Monika se tient dans l'embrasure.
+ev.y23_glitch = Le couloir se dissout en un fouillis vacillant de parasites. Le visage de Yuri apparaît, les yeux révulsés, tout blancs, puis son image se déchire en bandes corrompues.
+ev.y23_dark = Le couloir s'assombrit lentement autour de vous deux.
+ev.y23_eyes = L'écran pulse au rythme d'un battement de cœur. Toutes les quelques secondes, les yeux de Yuri apparaissent en flash sur tout l'écran, te fixant.
+ev.n_ghost = La pièce s'assombrit jusqu'à devenir rouge sang. Le visage de Natsuki est vide, en partie caché par des rectangles noirs qui buguent.
+ev.n_ghost_blood = Du sang se met à couler à flots de l'endroit où devraient se trouver les yeux de Natsuki.
+ev.n_ghost_neck = Un craquement écœurant. La tête de Natsuki bascule brusquement sur le côté, la nuque brisée, sa tête pendant selon un angle impossible.
+ev.n_ghost_lunge = Natsuki se jette soudain droit sur toi, remplissant l'écran, puis tout passe au noir.
+ev.just_monika_splash = L'écran d'introduction du jeu recommence, mais le message sous le logo dit seulement : Rien qu'à Monika.
+ev.yk_black = L'écran devient noir, rempli de parasites.
+ev.yk_stab = Yuri se tient devant toi, les yeux écarquillés et brillants, avec un grand sourire, un couteau à la main. Elle plante le couteau dans sa propre poitrine. Le sang se répand sur sa veste pendant qu'elle se poignarde encore et encore, toujours souriante, jusqu'à s'effondrer sur le sol.
+ev.yk_body = Le corps de Yuri gît sur le sol de la salle du club, affaissé contre un pupitre, les yeux mi-clos et un léger sourire aux lèvres. Sa veste est trempée de sang, une flaque de sang s'étend autour d'elle, et le couteau ensanglanté repose près de sa main. Le temps passe pendant le week-end : la lumière dans la pièce passe du jour à la nuit, puis de nouveau au jour, sans qu'elle ne bouge jamais.
+ev.yk3_console_yuri = Une petite fenêtre de console noire apparaît dans le coin de l'écran. Monika tape : os.remove("characters/yuri.chr"). La réponse s'affiche : yuri.chr deleted successfully. Yuri est effacée du jeu.
+ev.yk3_console_natsuki = Monika tape une autre commande : os.remove("characters/natsuki.chr"). La réponse s'affiche : natsuki.chr deleted successfully. Natsuki est effacée du jeu, elle aussi.
+ev.restart_white = L'écran passe progressivement au blanc et le jeu redémarre tout seul.
+
+# ---------------------------------------------------------------- Acte 3
+ev.ch30_start = Un écran blanc. Un fragment cassé et corrompu du logo vacille, puis tout devient noir.
+ev.monika_room = Monika est assise seule à un pupitre à l'avant d'une salle de classe vide, les mains jointes sous le menton, et te regarde droit dans les yeux avec un doux sourire. Derrière les fenêtres, il n'y a ni lycée ni ciel, seulement le vide sombre et étoilé de l'espace, avec des nuages rougeâtres. Le reste de la pièce s'efface dans l'obscurité autour d'elle.
+ev.monika_scare = Jump scare ! Le visage de Monika remplit soudain l'écran dans des rouges et des jaunes violents, la peau pourrie et les traits tordus en un horrible sourire décomposé, avec un cri strident.
+ev.monika_body_glitch = Le corps de Monika vacille et se désagrège en fragments lumineux épars, comme des pixels qui se consument.
+ev.room_glitch = La salle de classe bugue. La pièce clignote de couleurs rouges et orange qui bavent, avec des images dédoublées qui tremblent.
+ev.room_gone = Les interférences rugissent. La salle de classe autour de Monika est arrachée morceau par morceau jusqu'à ce qu'il ne reste que du noir.
+ev.console_monika = La fenêtre de console apparaît. Une commande vérifie le fichier de personnage de Monika : os.exists("characters/monika.chr"). La réponse s'affiche : monika.chr does not exist.
+ev.monika_pound = Monika tape du poing sur l'écran. L'image tremble violemment, des blocs noirs de parasites vacillent partout et l'écran clignote en rouge, vert et bleu.
+
+# ---------------------------------------------------------------- Acte 4 et générique
+ev.ch40_dark = La pièce s'assombrit autour de Sayori, et l'écran commence à pulser lentement, comme un battement de cœur.
+ev.ch40_room_glitch = Pendant un instant, la salle de classe cassée et corrompue de Monika apparaît en surimpression sur la scène.
+ev.ch40_monika = Une boîte de message apparaît à l'écran. Monika parle à travers elle.
+ev.credits_glitch = Sur un écran noir rempli de parasites, des fragments brouillés et corrompus des images du jeu vacillent pendant que la voix de Monika parle.
+ev.credits_console = La fenêtre de console apparaît. Monika tape : music.play("ddlc.ogg"). La réponse s'affiche : Playing audio "ddlc.ogg"...
+
+# ---------------------------------------------------------------- bonus de DDLC Plus
+ev.photo_flash = Le flash de l'appareil photo se déclenche.

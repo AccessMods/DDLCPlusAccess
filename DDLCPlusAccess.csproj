@@ -5,7 +5,8 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GamePath>C:\Program Files (x86)\Steam\steamapps\common\Doki Doki Literature Club Plus</GamePath>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Doki Doki Literature Club Plus</GamePath>
+    <GamePath Condition="!Exists('$(GamePath)') And Exists('S:\steam\steamapps\common\Doki Doki Literature Club Plus')">S:\steam\steamapps\common\Doki Doki Literature Club Plus</GamePath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MelonLoader">
@@ -38,12 +39,27 @@
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>$(GamePath)\Doki Doki Literature Club Plus_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
+    <Reference Include="SimpleExpressionEngine">
+      <HintPath>$(GamePath)\Doki Doki Literature Club Plus_Data\Managed\SimpleExpressionEngine.dll</HintPath>
+    </Reference>
     <Reference Include="UnityPS">
       <HintPath>$(GamePath)\Doki Doki Literature Club Plus_Data\Managed\UnityPS.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="UnityAccessibilityLib" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Offline data-extraction tools are separate programs, not part of the mod -->
+    <Compile Remove="tools\**" />
+    <None Remove="tools\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Localized mod strings, one file per game language: Loc.en-us.txt, Loc.spa.txt, ... -->
+    <EmbeddedResource Include="Localization\*.txt" LogicalName="Loc.%(Filename)%(Extension)" />
+    <!-- Which script lines / images trigger which scene description -->
+    <EmbeddedResource Include="SceneDescriptions\SceneEvents.txt" LogicalName="SceneEvents.txt" />
+    <EmbeddedResource Include="SceneDescriptions\SceneRules.txt" LogicalName="SceneRules.txt" />
   </ItemGroup>
   <Target Name="CopyModAfterBuild" AfterTargets="Build">
     <!-- Display a message in the build output -->
@@ -53,5 +69,12 @@
     <!-- Copy UnityAccessibilityLib.dll -->
     <Message Text="--- Copying UnityAccessibilityLib.dll to game folder ---" Importance="high" />
     <Copy SourceFiles="$(TargetDir)UnityAccessibilityLib.dll" DestinationFolder="$(GamePath)\" />
+    <!-- Prism (speech output) and its licences, loaded by full path from Mods\DDLCPlusAccess -->
+    <Message Text="--- Copying Prism to game folder ---" Importance="high" />
+    <ItemGroup>
+      <PrismLicenses Include="lib\prism\third-party\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="lib\prism\prism.dll" DestinationFolder="$(GamePath)\Mods\DDLCPlusAccess\" />
+    <Copy SourceFiles="@(PrismLicenses)" DestinationFiles="@(PrismLicenses->'$(GamePath)\Mods\DDLCPlusAccess\third-party\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project>

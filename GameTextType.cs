@@ -22,6 +22,7 @@ namespace DDLCPlusAccess
         public const int Settings = LibTextType.CustomBase + 4; // 104
         public const int Mail = LibTextType.CustomBase + 5; // 105
         public const int Jukebox = LibTextType.CustomBase + 6; // 106
+        public const int Description = LibTextType.CustomBase + 7; // 107 - scene/audio descriptions
 
         /// <summary>
         /// Gets a dictionary mapping text type IDs to readable names for logging.
@@ -41,6 +42,7 @@ namespace DDLCPlusAccess
                 { Settings, "Settings" },
                 { Mail, "Mail" },
                 { Jukebox, "Jukebox" },
+                { Description, "Description" },
             };
         }
 
