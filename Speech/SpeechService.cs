@@ -186,10 +186,10 @@ namespace DDLCPlusAccess
                 ScreenReaderMod.Logger?.Error($"prism.dll not found at {dllPath}. Speech is disabled.");
                 return false;
             }
-            if (!PrismNative.Load(dllPath, out int win32Error))
+            if (!PrismNative.Load(dllPath, out string loadError))
             {
                 ScreenReaderMod.Logger?.Error(
-                    $"Could not load {dllPath} (Win32 error {win32Error}). Speech is disabled."
+                    $"Could not load {dllPath} ({loadError}). Speech is disabled."
                 );
                 return false;
             }

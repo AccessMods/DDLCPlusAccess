@@ -6,13 +6,15 @@ using System.Text;
 namespace DDLCPlusAccess
 {
     /// <summary>
-    /// P/Invoke binding for Prism 0.18.4 (https://github.com/ethindp/prism, MPL-2.0), the library
+    /// Binding for Prism 0.18.4 (https://github.com/ethindp/prism, MPL-2.0), the library
     /// that routes speech to NVDA, JAWS, Narrator and others, or the Windows voices when no screen
     /// reader runs. Signatures follow lib/prism/prism.h. Only <see cref="SpeechService"/> calls this.
     ///
     /// Notes for Mono / .NET Framework:
-    /// - prism.dll is loaded by full path first, so [DllImport("prism")] binds to our copy and not
-    ///   to another mod's prism.dll of a different version.
+    /// - prism.dll is loaded by full path and every function is taken from that module with
+    ///   GetProcAddress. [DllImport("prism")] is not used: it makes Mono resolve the bare name
+    ///   itself, which on some machines throws DllNotFoundException even though our copy is
+    ///   already loaded, and it could bind to another mod's prism.dll of a different version.
     /// - Text goes as a UTF-8 byte array ending with a zero; default string marshalling is ANSI and
     ///   Prism refuses invalid UTF-8 (silently speaking nothing).
     /// - The C bool is one byte: [MarshalAs(UnmanagedType.I1)].
@@ -21,39 +23,83 @@ namespace DDLCPlusAccess
     {
         public const int PRISM_OK = 0;
 
-        private const string Dll = "prism";
-
         [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern IntPtr LoadLibraryW(string path);
 
-        [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr prism_init(IntPtr config);
+        [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        private static extern IntPtr GetProcAddress(IntPtr module, string procName);
 
-        [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr prism_registry_create_best(IntPtr context);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr InitFn(IntPtr config);
 
-        [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr prism_backend_name(IntPtr backend);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr RegistryCreateBestFn(IntPtr context);
 
-        [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int prism_backend_output(
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr BackendNameFn(IntPtr backend);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int BackendOutputFn(
             IntPtr backend,
             byte[] utf8Text,
             [MarshalAs(UnmanagedType.I1)] bool interrupt
         );
 
-        [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr prism_error_string(int error);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr ErrorStringFn(int error);
 
-        [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr prism_version_string();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr VersionStringFn();
 
-        /// <summary>Loads prism.dll from an explicit path. Returns false (with the Win32 error) on failure.</summary>
-        public static bool Load(string fullPath, out int win32Error)
+        // Set by Load; called like the functions they replace.
+        public static InitFn prism_init;
+        public static RegistryCreateBestFn prism_registry_create_best;
+        public static BackendNameFn prism_backend_name;
+        public static BackendOutputFn prism_backend_output;
+        public static ErrorStringFn prism_error_string;
+        public static VersionStringFn prism_version_string;
+
+        /// <summary>
+        /// Loads prism.dll from an explicit path and binds every function from it.
+        /// Returns false with a readable reason on failure.
+        /// </summary>
+        public static bool Load(string fullPath, out string error)
         {
             IntPtr handle = LoadLibraryW(fullPath);
-            win32Error = handle == IntPtr.Zero ? Marshal.GetLastWin32Error() : 0;
-            return handle != IntPtr.Zero;
+            if (handle == IntPtr.Zero)
+            {
+                error = "Win32 error " + Marshal.GetLastWin32Error();
+                return false;
+            }
+
+            try
+            {
+                prism_init = Bind<InitFn>(handle, "prism_init");
+                prism_registry_create_best = Bind<RegistryCreateBestFn>(handle, "prism_registry_create_best");
+                prism_backend_name = Bind<BackendNameFn>(handle, "prism_backend_name");
+                prism_backend_output = Bind<BackendOutputFn>(handle, "prism_backend_output");
+                prism_error_string = Bind<ErrorStringFn>(handle, "prism_error_string");
+                prism_version_string = Bind<VersionStringFn>(handle, "prism_version_string");
+            }
+            catch (EntryPointNotFoundException ex)
+            {
+                error = ex.Message;
+                return false;
+            }
+
+            error = null;
+            return true;
+        }
+
+        private static T Bind<T>(IntPtr module, string name)
+            where T : class
+        {
+            IntPtr address = GetProcAddress(module, name);
+            if (address == IntPtr.Zero)
+                throw new EntryPointNotFoundException(
+                    $"prism.dll has no export '{name}' (Win32 error {Marshal.GetLastWin32Error()})"
+                );
+            return (T)(object)Marshal.GetDelegateForFunctionPointer(address, typeof(T));
         }
 
         /// <summary>Text as zero-terminated UTF-8, the only form Prism accepts.</summary>

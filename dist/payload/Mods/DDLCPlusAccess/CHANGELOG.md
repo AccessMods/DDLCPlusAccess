@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.1
+
+- Fixed the mod staying silent on some computers. The log showed "Prism failed to start:
+  System.DllNotFoundException: prism" even though prism.dll was installed.
+
 ## 2.3.0
 
 - The gallery is now fully translated: every picture, wallpaper, sketch, background and promo
