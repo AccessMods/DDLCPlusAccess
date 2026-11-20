@@ -43,12 +43,14 @@ namespace DDLCPlusAccess
         {
             try
             {
-                // Check if this is a special poem image
-                if (string.IsNullOrWhiteSpace(key) || !SpecialPoemDescriptions.IsSpecialPoem(key))
+                // Check if this is a special poem image (any language variant)
+                string descriptionKey = SpecialPoemDescriptions.GetKey(key);
+                if (descriptionKey == null)
                     return;
 
-                // Prevent duplicate announcements
-                if (IsImageDuplicate(key))
+                // Prevent duplicate announcements (the base image and its localized
+                // variant can load back to back)
+                if (IsImageDuplicate(descriptionKey))
                     return;
 
                 // Get description for this special poem

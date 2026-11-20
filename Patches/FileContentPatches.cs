@@ -45,10 +45,25 @@ namespace DDLCPlusAccess
                     fileLines = null;
                     currentLineIndex = -1;
 
-                    // Announce non-text file
-                    string message = $"File opened: {currentFileName}. This is not a text file.";
+                    string message;
+                    if (FileBrowserApp.ViewedAsset is Sprite sprite)
+                    {
+                        // Pictures get a description
+                        string description = GetImageDescription(sprite.name);
+                        message = string.IsNullOrEmpty(description)
+                            ? Loc.Get("file.opened_image_unknown", currentFileName)
+                            : Loc.Get("file.opened_image", currentFileName, description);
+                        ScreenReaderMod.Logger?.Msg(
+                            $"Image file opened: {currentFileName} (asset {sprite.name})"
+                        );
+                    }
+                    else
+                    {
+                        message = Loc.Get("file.opened_other", currentFileName);
+                        ScreenReaderMod.Logger?.Msg($"Non-text file opened: {currentFileName}");
+                    }
+
                     ClipboardUtils.OutputGameText("", message, TextType.FileBrowser);
-                    ScreenReaderMod.Logger?.Msg($"Non-text file opened: {currentFileName}");
                     return;
                 }
 
@@ -60,7 +75,7 @@ namespace DDLCPlusAccess
                     currentLineIndex = -1;
                     ClipboardUtils.OutputGameText(
                         "",
-                        $"File opened: {currentFileName}. File is empty.",
+                        Loc.Get("file.opened_empty", currentFileName),
                         TextType.FileBrowser
                     );
                     return;
@@ -78,7 +93,7 @@ namespace DDLCPlusAccess
                     currentLineIndex = -1;
                     ClipboardUtils.OutputGameText(
                         "",
-                        $"File opened: {currentFileName}. File is empty.",
+                        Loc.Get("file.opened_empty", currentFileName),
                         TextType.FileBrowser
                     );
                     return;
@@ -88,8 +103,11 @@ namespace DDLCPlusAccess
                 currentLineIndex = 0;
 
                 // Announce file opened with navigation instructions
-                string openMessage =
-                    $"File opened: {currentFileName}. {fileLines.Length} lines. Use up and down arrows to navigate.";
+                string openMessage = Loc.Get(
+                    "file.opened_text",
+                    currentFileName,
+                    fileLines.Length
+                );
                 ClipboardUtils.OutputGameText("", openMessage, TextType.FileBrowser);
                 ScreenReaderMod.Logger?.Msg(
                     $"File content opened: {currentFileName} ({fileLines.Length} lines)"
@@ -140,7 +158,7 @@ namespace DDLCPlusAccess
             }
             else
             {
-                ClipboardUtils.OutputGameText("", "Beginning of file", TextType.FileBrowser);
+                ClipboardUtils.OutputGameText("", Loc.Get("file.begin"), TextType.FileBrowser);
             }
         }
 
@@ -157,7 +175,7 @@ namespace DDLCPlusAccess
             }
             else
             {
-                ClipboardUtils.OutputGameText("", "End of file", TextType.FileBrowser);
+                ClipboardUtils.OutputGameText("", Loc.Get("file.end"), TextType.FileBrowser);
             }
         }
 
@@ -193,6 +211,33 @@ namespace DDLCPlusAccess
                 $"File line {lineNumber}/{fileLines.Length}: {cleanedLine}"
             );
             ClipboardUtils.OutputGameText("", cleanedLine, TextType.FileBrowser);
+        }
+
+        /// <summary>
+        /// Localized description of a picture opened from the file browser. Descriptions
+        /// are stored under "file.img.&lt;asset name&gt;" (lower case, non-alphanumerics as
+        /// underscores), e.g. "hxppy thxughts" -> file.img.hxppy_thxughts.
+        /// </summary>
+        private static string GetImageDescription(string assetName)
+        {
+            if (string.IsNullOrWhiteSpace(assetName))
+                return null;
+
+            string key =
+                "file.img."
+                + System
+                    .Text.RegularExpressions.Regex.Replace(
+                        assetName.Trim().ToLowerInvariant(),
+                        "[^a-z0-9]+",
+                        "_"
+                    )
+                    .Trim('_');
+            if (Loc.Has(key))
+                return Loc.Get(key);
+
+            // Fall back to the gallery / special poem descriptions
+            string description = DescriptionManager.GetDescription(assetName);
+            return string.IsNullOrEmpty(description) ? null : description;
         }
 
         private static bool IsTextFile()

@@ -17,7 +17,7 @@ namespace DDLCPlusAccess
             try
             {
                 var word = __instance.Word;
-                string wordText = word.Word.word;
+                string wordText = DescribeWord(word);
 
                 if (!string.IsNullOrWhiteSpace(wordText))
                 {
@@ -34,6 +34,64 @@ namespace DDLCPlusAccess
             }
         }
 
+        /// <summary>
+        /// The spoken form of a poem word. Glitched words (Act 2) and Act 3's corrupted
+        /// "Monika" words would otherwise be read as random symbols.
+        /// </summary>
+        private static string DescribeWord(PoetryGameScreen.SelectableWord word)
+        {
+            if (word.GlitchWord)
+                return Loc.Get("poetry.glitch_word");
+            if (GetCurrentPlaythrough() == 3)
+                return Loc.Get("poetry.monika_word");
+            return word.Word.word;
+        }
+
+        private static readonly System.Collections.Generic.HashSet<string> s_DescribedStickers =
+            new System.Collections.Generic.HashSet<string>();
+
+        /// <summary>
+        /// Character stickers hop when you pick a word. Most hops are already conveyed by
+        /// "X likes this"; describe only the unusual Act 2 stickers, once per poem.
+        /// </summary>
+        [HarmonyPatch(typeof(RenpyMainBase), "Show", typeof(RenpyParser.Show))]
+        [HarmonyPostfix]
+        public static void RenpyMainBase_Show_Postfix(RenpyParser.Show show)
+        {
+            try
+            {
+                if (show == null || string.IsNullOrEmpty(show.ImageName))
+                    return;
+
+                string name = string.IsNullOrEmpty(show.Variant)
+                    ? show.ImageName
+                    : show.ImageName + " " + show.Variant;
+
+                string key = null;
+                switch (name)
+                {
+                    case "m_sticker hop":
+                        key = "poetry.sticker_monika";
+                        break;
+                    case "y_sticker_cut":
+                    case "y_sticker_cut hop":
+                        key = "poetry.sticker_yuri_cut";
+                        break;
+                    case "y_sticker hopg":
+                    case "y_sticker_cut hopg":
+                        key = "poetry.sticker_yuri_creepy";
+                        break;
+                }
+
+                if (key != null && s_DescribedStickers.Add(key))
+                    SceneDescriber.Describe(key);
+            }
+            catch (System.Exception ex)
+            {
+                ScreenReaderMod.Logger?.Error($"Error in RenpyMainBase_Show_Postfix: {ex.Message}");
+            }
+        }
+
         [HarmonyPatch(typeof(WordSelect), "OnPointerEnter")]
         [HarmonyPostfix]
         public static void WordSelect_OnPointerEnter_Postfix(
@@ -44,7 +102,7 @@ namespace DDLCPlusAccess
             try
             {
                 var word = __instance.Word;
-                string wordText = word.Word.word;
+                string wordText = DescribeWord(word);
 
                 if (!string.IsNullOrWhiteSpace(wordText))
                 {
@@ -67,11 +125,8 @@ namespace DDLCPlusAccess
         {
             try
             {
-                ClipboardUtils.OutputGameText(
-                    "",
-                    "Poetry minigame started. Navigate with arrow keys and press Enter to select words.",
-                    TextType.SystemMessage
-                );
+                s_DescribedStickers.Clear();
+                ClipboardUtils.OutputGameText("", Loc.Get("poetry.start"), TextType.SystemMessage);
             }
             catch (System.Exception ex)
             {
@@ -131,9 +186,18 @@ namespace DDLCPlusAccess
                     progressDisplay = currentProgress.ToString();
                 }
 
-                message += (message.Length > 0 ? ". " : "") + $"Progress: {progressDisplay}/20";
+                message +=
+                    (message.Length > 0 ? ". " : "") + Loc.Get("poetry.progress", progressDisplay);
 
                 ClipboardUtils.OutputGameText("", message, TextType.SystemMessage);
+
+                // Picking the rare glitched word (Act 2) breaks the minigame's visuals.
+                bool alreadyGlitched = HarmonyLib
+                    .Traverse.Create(__instance)
+                    .Field("PoemGameGlitch")
+                    .GetValue<bool>();
+                if (word.GlitchWord && !alreadyGlitched)
+                    SceneDescriber.Describe("poetry.glitch_selected");
             }
             catch (System.Exception ex)
             {
@@ -156,11 +220,11 @@ namespace DDLCPlusAccess
             {
                 // Act 1: Show all character reactions based on individual favor levels
                 if (poetryWord.sayouriFavour >= 3)
-                    reactions.Add("Sayori likes this");
+                    reactions.Add(Loc.Get("poetry.likes_sayori"));
                 if (poetryWord.natsukiFavour >= 3)
-                    reactions.Add("Natsuki likes this");
+                    reactions.Add(Loc.Get("poetry.likes_natsuki"));
                 if (poetryWord.yuriFavour >= 3)
-                    reactions.Add("Yuri likes this");
+                    reactions.Add(Loc.Get("poetry.likes_yuri"));
             }
             else if (playthrough >= 1 && playthrough <= 2)
             {
@@ -168,11 +232,11 @@ namespace DDLCPlusAccess
                 // Based on the game logic: if natsukiFavour > yuriFavour, show Natsuki, else show Yuri
                 if (poetryWord.natsukiFavour > poetryWord.yuriFavour)
                 {
-                    reactions.Add("Natsuki likes this");
+                    reactions.Add(Loc.Get("poetry.likes_natsuki"));
                 }
                 else
                 {
-                    reactions.Add("Yuri likes this");
+                    reactions.Add(Loc.Get("poetry.likes_yuri"));
                 }
             }
             else if (playthrough == 3)
@@ -185,11 +249,11 @@ namespace DDLCPlusAccess
             {
                 // Act 4: Similar to Act 1 but without Monika - though this might not have poetry games
                 if (poetryWord.sayouriFavour >= 3)
-                    reactions.Add("Sayori likes this");
+                    reactions.Add(Loc.Get("poetry.likes_sayori"));
                 if (poetryWord.natsukiFavour >= 3)
-                    reactions.Add("Natsuki likes this");
+                    reactions.Add(Loc.Get("poetry.likes_natsuki"));
                 if (poetryWord.yuriFavour >= 3)
-                    reactions.Add("Yuri likes this");
+                    reactions.Add(Loc.Get("poetry.likes_yuri"));
             }
 
             if (reactions.Count == 0)
@@ -199,10 +263,10 @@ namespace DDLCPlusAccess
                 return reactions[0];
 
             if (reactions.Count == 2)
-                return $"{reactions[0]} and {reactions[1]}";
+                return Loc.Get("poetry.and2", reactions[0], reactions[1]);
 
             // All three like it (only possible in Acts 1 and 4)
-            return $"{reactions[0]}, {reactions[1]}, and {reactions[2]}";
+            return Loc.Get("poetry.and3", reactions[0], reactions[1], reactions[2]);
         }
 
         private static int GetCurrentPlaythrough()

@@ -1,0 +1,106 @@
+# Scene events: specific script lines that trigger a description.
+# Format:  block:lineIndex | expected content (for validation only) | key[:argument], key2 ...
+# The block is the Ren'Py label/image block, the index is the line inside it (0-based),
+# exactly as RenpyCallstackEntry runs it. Keys refer to Localization/*.txt.
+# Validate against the decoded game script with tools/validate_scene_events.py.
+
+# ---------------- splash screen / start
+splashscreen:87 | show end | fx.end
+splashscreen:100 | show end | fx.end
+splashscreen:104 | show image cg/s_kill_early.png | ev.s_kill_early
+splashscreen:121 | show intro | fx.splash
+start:65 | hxppy thxughts.png | fx.new_file:hxppy thxughts.png
+start:81 | CAN YOU HEAR ME.txt | fx.new_file:CAN YOU HEAR ME.txt
+start:87 | iiiiiiiiii | fx.new_file_iiii
+
+# ---------------- Act 1
+ch0_kill:1 | show sayori 1b | ev.ch0_kill
+ch0_kill:17 | delete_character | ev.ch0_kill_end
+ch5_main:160 | show s_kill_bg2 | ev.s_kill
+ch5_main:176 | show s_kill_bg_zoom | ev.s_kill_zoom
+ch5_main:185 | show white | ev.s_kill_splash
+ch5_main:203 | show splash_glitch2 | ev.s_kill_splash2
+ch5_main:213 | show exception_bg | ev.s_kill_exception
+endgame:3 | show end | fx.end
+
+# ---------------- Act 2
+# The Act 2 clubroom background randomly (1 in 6) uses a subtly altered picture.
+bg club_day2:2 | call bg club_day | bg.club_day
+bg club_day2:5 | call bg club_day | bg.club_day
+bg club_day2:8 | call bg club_day | bg.club_day
+bg club_day2:11 | call bg club_day | bg.club_day
+bg club_day2:14 | call bg club_day | bg.club_day
+bg club_day2:17 | call bg club_skill | bg.club_skill
+ch1_n_bad:7 | show n_blackeyes | ev.n_blackeyes
+ch21_end:130 | show noise | ev.ch21_static
+ch21_end:200 | _screen_tear | ev.ch21_menu_stuck
+ch22_main:9 | show yuri half | ev.ch22_yuri_half
+ch22_main:113 | show n_rects_mouth | ev.ch22_natsuki_rects
+ch22_end:22 | dizzy_faint_effect | ev.ch22_faint
+ch22_end:205 | show y_glitch_head | ev.ch22_yuri_head
+ch22_end:223 | show y_glitch_head | ev.ch22_yuri_head
+ch22_end:233 | show blood_eye | ev.ch22_blood_eye
+ch22_end:252 | show blood_eye2 | ev.ch22_blood_eye2
+ch22_end:316 | show darkred | ev.ch22_monika_dark
+ch22_end:336 | show black | ev.ch22_black
+ch22_n_end2:16 | show n_rects_ghost1 | ev.n_ghost
+ch22_n_end2:25 | show natsuki_ghost_blood | ev.n_ghost_blood
+ch22_n_end2:45 | show natsuki ghost3 | ev.n_ghost_neck
+ch22_n_end2:51 | show natsuki ghost4 | ev.n_ghost_lunge
+ch22_n_end2:63 | show end | fx.end
+ch23_main:3 | show noface1 | ev.ch23_noface
+ch23_end:152 | show yuripupils | ev.ch23_pupils
+ch23_end:180 | MENU "Monika" | ev.ch23_all_monika
+ch23_end:254 | have a nice weekend! | fx.new_file:have a nice weekend!
+ch23_n_end:10 | show natsuki ghost_base | spr.natsuki_ghost
+ch23_n_end:34 | show intro | ev.just_monika_splash
+ch23_m_end:4 | show paper_glitch | ev.ch23_paper_glitch
+ch23_m_end:9 | scene bsod | ev.bsod
+natsuki_exclusive2_1:199 | show n_cg1b | ev.n_cg1b
+yuri_exclusive2_2_ch22:69 | show yuri cuts | ev.y_cuts
+yuri_exclusive2_2_ch22:77 | show noise | ev.rewind
+yuri_exclusive2_2_ch22:274 | show dark | ev.closet_dark
+yuri_exclusive2_2_ch22:283 | heartbeat | fx.heartbeat
+yuri_exclusive2_2_ch22:293 | show yuri_eyes_lc | ev.y_eyes_close
+yuri_exclusive2_2_ch22:301 | closet-open | ev.closet_open
+yuri_exclusive2_2_ch23:8 | show yuri eyes1 | ev.y23_glitch
+yuri_exclusive2_2_ch23:31 | show black | ev.y23_dark
+yuri_exclusive2_2_ch23:66 | show yuri_eyes | ev.y23_eyes
+yuri_kill_1:14 | scene black | ev.yk_black
+yuri_kill_1:28 | show yuri stab_1 | ev.yk_stab
+yuri_kill_1:60 | show yuri stab_1 | ev.yk_stab
+yuri_kill_2:22 | show y_kill | ev.yk_body
+yuri_kill_2:29 | show y_kill | ev.yk_body
+yuri_kill_3:59 | call updateconsole | ev.yk3_console_yuri
+yuri_kill_3:62 | call updateconsole | ev.yk3_console_natsuki
+yuri_kill_3:84 | scene white | ev.restart_white
+
+# ---------------- Act 3
+ch30_main:20 | show splash-glitch2 | ev.ch30_start
+ch30_endb:9 | show monika_body_glitch1 | ev.monika_body_glitch
+ch30_endb:18 | show room_glitch | ev.room_glitch
+ch30_endb:33 | sfx/interference.ogg | ev.room_gone
+ch30_endb:54 | call updateconsole | ev.console_monika
+ch30_endb:59 | sfx/monikapound.ogg | ev.monika_pound
+ch30_endb:75 | sfx/monikapound.ogg | ev.monika_pound
+
+# ---------------- Act 4 and credits
+ch40_main:422 | heartbeat | ev.ch40_dark
+ch40_main:438 | show room_glitch | ev.ch40_room_glitch
+ch40_main:465 | _screen_dialog | ev.ch40_monika
+credits:12 | show end_glitch1 | ev.credits_glitch
+credits:37 | call updateconsole | ev.credits_console
+
+# ---------------- DDLC Plus epilogue and credits
+epilogue:332 | show white | ev.photo_flash
+pluscredits:3 | pluscredits_cg1 | cg.credits_sayori
+pluscredits:14 | pluscredits_cg2 | cg.credits_natsuki
+pluscredits:25 | pluscredits_cg3 | cg.credits_yuri
+pluscredits:36 | pluscredits_cg4 | cg.credits_monika
+pluscredits:47 | pluscredits_cg5 | cg.sm
+pluscredits:58 | pluscredits_cg6 | cg.sy
+pluscredits:69 | pluscredits_cg7 | cg.nm
+pluscredits:91 | pluscredits_cg9 | cg.sn
+pluscredits:113 | pluscredits_cg11 | cg.ym
+pluscredits:124 | pluscredits_cg12 | cg.ny
+pluscredits:137 | pluscredits_epilogue | cg.epilogue

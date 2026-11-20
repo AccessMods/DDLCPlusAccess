@@ -1,0 +1,93 @@
+# Publishes a release when a version tag is pushed. Stage it first:
+#   set the version in Properties/AssemblyInfo.cs (MelonInfo) and CHANGELOG.md, then
+#   .\tools\release.ps1 (builds, checks the translations, restages dist/payload), then
+#   git commit -am "Release 2.1.0" && git tag -a v2.1.0 -m v2.1.0 && git push --follow-tags
+# CI cannot build the mod: it references the game's own assemblies, which are not
+# redistributable, so the built mod (with Prism and its licences) is committed in dist/payload.
+# The zip adds the official MelonLoader v0.7.1 x64 download, checked by SHA-256.
+# installer/DDLCPlusAccessibilityInstaller.exe is built from the shared installer project
+# (..\installer, build_installer.bat) and committed here; it always installs the latest release.
+# Run it by hand (Actions > Release > Run workflow) to build the zip without releasing.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  MELONLOADER_VERSION: v0.7.1
+  MELONLOADER_SHA256: ff3a863500d3e5a30e2f2553615d34f3eeced53277e4bccca7ee7508ebe92aa8
+  TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v0.0.0' }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the tag against the mod's version
+        if: github.event_name == 'push'
+        run: |
+          version=$(grep -A3 'MelonInfo(' Properties/AssemblyInfo.cs | sed -n 's/^ *"\([0-9][0-9.]*\)",.*/\1/p' | head -1)
+          if [ "v$version" != "$TAG" ]; then
+            echo "Tag $TAG does not match version $version in Properties/AssemblyInfo.cs." >&2
+            exit 1
+          fi
+          grep -aq "$version" dist/payload/Mods/DDLCPlusAccess.dll || {
+            echo "dist/payload/Mods/DDLCPlusAccess.dll is not version $version: run tools/release.ps1 and commit." >&2
+            exit 1
+          }
+
+      - name: Check that the payload and the installer are there
+        run: |
+          test -f dist/payload/Mods/DDLCPlusAccess.dll
+          test -f dist/payload/Mods/DDLCPlusAccess/prism.dll
+          test -f dist/payload/Mods/DDLCPlusAccess/third-party/LICENSES/prism/mpl-2.0.txt
+          test -f dist/payload/UnityAccessibilityLib.dll
+          test -f installer/DDLCPlusAccessibilityInstaller.exe
+
+      - name: Release notes from this version's CHANGELOG section
+        if: github.event_name == 'push'
+        run: |
+          version=${TAG#v}
+          awk -v h="## $version" '$0 == h {on=1; next} /^## / {on=0} on' CHANGELOG.md > notes.md
+          test -s notes.md || { echo "CHANGELOG.md has no '## $version' section." >&2; exit 1; }
+
+      - name: Download MelonLoader
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dl
+          gh release download "$MELONLOADER_VERSION" --repo LavaGang/MelonLoader --pattern MelonLoader.x64.zip --dir dl
+          echo "$MELONLOADER_SHA256  dl/MelonLoader.x64.zip" | sha256sum -c -
+
+      - name: Assemble the game folder layout
+        run: |
+          mkdir -p stage
+          unzip -q dl/MelonLoader.x64.zip -d stage
+          cp -r dist/payload/. stage/
+          test -f stage/version.dll
+          test -f stage/MelonLoader/net35/MelonLoader.dll
+          (cd stage && zip -qr "../DDLCPlusAccess-$TAG.zip" .)
+          unzip -l "DDLCPlusAccess-$TAG.zip" | grep -v '/Dependencies/\|/net6/\|/LICENSES/'
+
+      - name: Keep the zip (manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: DDLCPlusAccess-build
+          path: DDLCPlusAccess-${{ env.TAG }}.zip
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            DDLCPlusAccess-${{ github.ref_name }}.zip
+            installer/DDLCPlusAccessibilityInstaller.exe
+          body_path: notes.md

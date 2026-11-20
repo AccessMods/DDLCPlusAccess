@@ -26,6 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Handles scene loading events
 - Implements hotkeys:
   - **R key**: Repeat last dialogue (`SpeechManager.RepeatLast()`)
+  - **D key**: Repeat last scene description (`SceneDescriber.RepeatLastDescription()`)
   - **C key**: Announce data collection percentage (in Settings app)
   - **P key**: Announce jukebox position (in Jukebox app)
   - **Up/Down arrows**: Navigate history entries (when history screen has focus) or lines in file content viewer
@@ -57,10 +58,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Handles player name (MC) via `GetPlayerName()`
 - `ShouldFilterText()` - Filters developer commentary and technical strings
 
-**DescriptionManager.cs** - Centralized image description system
+**SceneDescriptions/SceneDescriber.cs** - Audio descriptions of on-screen events
 
-- Manages descriptions for gallery images (CGs, Wallpapers, Poems, Backgrounds, etc.)
-- Provides lookup methods by image name or section
+- Harmony postfix on `RenpyCallstackEntry.Next` sees every script line the game runs (block name + line index)
+- `SceneEvents.txt` (embedded): exact `block:line | expected content | key[:arg]` triggers for one-off events
+- `SceneRules.txt` (embedded): generic rules by `scene:`/`show:`/`regex:`/`expr:` name (locations, CGs, special sprites, screen tears); per-key cooldowns; locations only announced when they change
+- Tracks the "edited" dialogue style (Monika's distorted font) so `DialoguePatches` can mark those lines
+- Output type `GameTextType.Description` (107)
+
+**Localization/Loc.cs** - Localized mod strings
+
+- `Loc.Get(key, args)`; language from `Renpy.GetCurrentLanguagePrefix()` (en-us, spa, spa-m9, fr-fr, de-de, it-it, pt-br, pyc, ko, ja, zh-cn, zh-tw)
+- One embedded `Localization/<lang>.txt` per language (`key = value`); `en-us.txt` is the master, missing keys fall back to English
+- New user-facing strings must be added to all 12 files
+
+**Utilities/PoemVisualDescriptions.cs** - Recognizes glitched/unusual poems (by raw author/title/text) and stained papers (`m_Paper`); `PoemPatches` speaks the `poem.desc_*` / `poem.paper_*` description before the poem
+
+**Utilities/SpecialPoemDescriptions.cs** - Maps special poem images in any language variant (`poem_special1_spa`, `_th`, `_original`, `gallery_special*`) to localized `poem.special*` keys; their text quotes the game's own translation
+
+**Utilities/GlitchText.cs** - Detects the game's random glitch text (Latin Extended-A + rare symbols) and replaces it with a localized marker
+
+**DescriptionManager.cs** - Localized image titles and descriptions
+
+- Gallery images (CGs, wallpapers, poems, backgrounds, sketches, promos, secrets) and Files app pictures
+- Keys in `Localization/*.txt`: `imgname.<asset>` (short title) and `img.<asset>` (description); `<asset>` is the asset name lower-cased with other characters as `_`, language suffixes stripped
+- Gallery poems quote the game's own translation of the poem (title + text)
 
 ### Harmony Patching Architecture
 
@@ -116,7 +138,8 @@ Text cleaning is handled by UnityAccessibilityLib's `TextCleaner` with custom pa
 - **Harmony** - Runtime method patching
 - **Unity Engine** - Game engine APIs
 - **DDLC/RenpyParser** - Game-specific assemblies
-- Decompiled DDLC assemblies in `../Decomp` folder for reference
+- Decompile `DDLC.dll` / `Assembly-CSharp.dll` with `ilspycmd` for reference (not kept in the repo)
+- Build finds the game at `C:\Program Files (x86)\Steam\...` or `S:\steam\...`; override with `-p:GamePath=...`
 
 ## Development Guidelines
 
@@ -127,11 +150,18 @@ Text cleaning is handled by UnityAccessibilityLib's `TextCleaner` with custom pa
 3. Call `ClipboardUtils.OutputGameText(speaker, text, TextType.X)`
 4. Library handles text cleaning and duplicate detection automatically
 
+### Adding Scene/Event Descriptions
+
+1. Decode the script with `tools/` (see `tools/README.md`) and locate the line in `script.txt`
+2. Add the description key to `Localization/en-us.txt` and all other language files
+3. Reference it from `SceneDescriptions/SceneEvents.txt` or `SceneRules.txt`
+4. Run `python tools/validate_scene_events.py tools . <work>/script.txt`
+
 ### Adding New Image Descriptions
 
 1. Identify the image asset name in the game
-2. Add description to appropriate file in `ImageDescriptions/` folder
-3. Dictionary key = asset name, value = description text
+2. Add `imgname.<asset>` and `img.<asset>` to `Localization/en-us.txt` and all other language files (Files app pictures use `file.img.<asset>`)
+3. When the image shows game text (poems), quote the game's own translation from its Lines tables
 
 ### Debugging
 

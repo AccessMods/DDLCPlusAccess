@@ -24,7 +24,9 @@ namespace DDLCPlusAccess
 
                 ClipboardUtils.OutputGameText(
                     "",
-                    $"Choose from {activeCount} option{(activeCount > 1 ? "s" : "")}",
+                    activeCount == 1
+                        ? Loc.Get("ui.choose_one")
+                        : Loc.Get("ui.choose_many", activeCount),
                     TextType.Menu
                 );
             }
@@ -43,13 +45,81 @@ namespace DDLCPlusAccess
             try
             {
                 ScreenReaderMod.Logger?.Msg("Main menu shown");
-                ClipboardUtils.OutputGameText("", "Main menu", TextType.Menu);
+                SceneDescriber.ResetState();
+
+                string artKey = GetMainMenuArtKey();
+                if (artKey == "menu.ghost")
+                {
+                    // The ghost menu has no buttons: describe it every time.
+                    SceneDescriber.Describe(artKey);
+                    return;
+                }
+
+                ClipboardUtils.OutputGameText("", Loc.Get("ui.main_menu"), TextType.Menu);
+
+                // Describe the artwork the first time each version of it is seen.
+                if (artKey != null && s_DescribedMenuArt.Add(artKey))
+                    SceneDescriber.Describe(artKey);
             }
             catch (System.Exception ex)
             {
                 ScreenReaderMod.Logger?.Error(
                     $"Error in RenpyMainMenuUI_OnShow_Postfix: {ex.Message}"
                 );
+            }
+        }
+
+        private static readonly System.Collections.Generic.HashSet<string> s_DescribedMenuArt =
+            new System.Collections.Generic.HashSet<string>();
+
+        /// <summary>
+        /// Mirrors RenpyMainMenuUI.OnShow: which artwork is beside the menu in the current act.
+        /// </summary>
+        private static string GetMainMenuArtKey()
+        {
+            var context = Renpy.CurrentContext;
+            if (context == null)
+                return null;
+
+            if (context.GetVariableFloat("persistent.ghost_menu") == 1f)
+                return "menu.ghost";
+            if (Renpy.CurrentLabel == "yuri_kill_2")
+                return "menu.art_none";
+
+            float playthrough = context.GetVariableFloat("persistent.playthrough");
+            if (playthrough == 1f || playthrough == 2f)
+                return "menu.art_act2";
+            if (playthrough == 4f)
+                return "menu.art_act4";
+            return "menu.art_normal";
+        }
+
+        private static bool IsInMainMenuDuringAct2()
+        {
+            try
+            {
+                return RenpyScreenManager.Instance != null
+                    && RenpyScreenManager.Instance.InMainMenu
+                    && Renpy.CurrentContext?.GetVariableFloat("persistent.playthrough") == 1f;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Ghost menu: any key flashes Monika's ghost, then the game returns to the launcher.
+        [HarmonyPatch(typeof(RenpyMainMenuUI), "FlashGhostMonika")]
+        [HarmonyPrefix]
+        public static void RenpyMainMenuUI_FlashGhostMonika_Prefix()
+        {
+            try
+            {
+                SceneDescriber.Describe("menu.ghost_flash");
+            }
+            catch (System.Exception ex)
+            {
+                ScreenReaderMod.Logger?.Error($"Error in FlashGhostMonika prefix: {ex.Message}");
             }
         }
 
@@ -60,7 +130,7 @@ namespace DDLCPlusAccess
             try
             {
                 ScreenReaderMod.Logger?.Msg("Preferences menu shown");
-                ClipboardUtils.OutputGameText("", "Preferences menu", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("ui.preferences_menu"), TextType.Menu);
             }
             catch (System.Exception ex)
             {
@@ -77,7 +147,7 @@ namespace DDLCPlusAccess
             try
             {
                 ScreenReaderMod.Logger?.Msg("Save/Load screen shown");
-                ClipboardUtils.OutputGameText("", "Save and load menu", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("ui.save_load_menu"), TextType.Menu);
             }
             catch (System.Exception ex)
             {
@@ -160,6 +230,14 @@ namespace DDLCPlusAccess
                 {
                     string buttonText = __instance.textObject.text;
                     ScreenReaderMod.Logger?.Msg($"Button focused: {buttonText}");
+
+                    // Act 2's main menu shows "New Game" as garbled symbols.
+                    if (GlitchText.ContainsGlitch(buttonText))
+                    {
+                        buttonText = IsInMainMenuDuringAct2()
+                            ? Loc.Get("ui.new_game_glitched")
+                            : Loc.Get("ui.glitched_button");
+                    }
                     ClipboardUtils.OutputGameText("", buttonText, TextType.Menu);
                 }
             }

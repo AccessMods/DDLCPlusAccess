@@ -14,6 +14,12 @@ namespace DDLCPlusAccess
         private static readonly System.TimeSpan PoemDuplicateWindow =
             System.TimeSpan.FromMilliseconds(500);
 
+        // Paper image the poem is shown on ("paper" or e.g. "bg/poem_y2.jpg")
+        private static readonly System.Reflection.FieldInfo PaperField = AccessTools.Field(
+            typeof(RenpyPoemUI),
+            "m_Paper"
+        );
+
         private static bool IsPoemDuplicate(string text)
         {
             var now = System.DateTime.Now;
@@ -58,6 +64,12 @@ namespace DDLCPlusAccess
 
                 if (string.IsNullOrWhiteSpace(poemText) || IsPoemDuplicate(poemText))
                     return;
+
+                // Glitched or unusual poems get a description of how they look first
+                string paper = PaperField?.GetValue(__instance) as string;
+                string visual = PoemVisualDescriptions.Describe(poem, paper);
+                if (!string.IsNullOrEmpty(visual))
+                    poemText = visual + "\n\n" + poemText;
 
                 // Skip normal text processing for poems to preserve formatting
                 ClipboardUtils.OutputPoemText(poemText);

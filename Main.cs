@@ -12,13 +12,18 @@ namespace DDLCPlusAccess
         public static MelonLogger.Instance Logger { get; private set; }
         public static ScreenReaderMod Instance { get; private set; }
         private static bool _isInitialized = false;
+        private static bool _announcedLoaded = false;
 
         public override void OnInitializeMelon()
         {
             Instance = this;
             Logger = LoggerInstance;
             Logger.Msg("DDLC Screen Reader Mod initialized!");
-            Logger.Msg("Waiting for Unity to be ready before starting speech system...");
+
+            // Prism runs on its own thread; starting it here (not on a loader callback) is safe.
+            SpeechService.TextTypeNames = GameTextType.GetTextTypeNames();
+            SpeechService.ShouldStoreForRepeat = GameTextType.ShouldStoreForRepeat;
+            SpeechService.Start();
         }
 
         private void InitializeSpeechSystem()
@@ -31,33 +36,8 @@ namespace DDLCPlusAccess
                 // Set up accessibility library logging
                 AccessibilityLog.Logger = new MelonLoggerAdapter(LoggerInstance);
 
-                // Configure text type names for logging
-                SpeechManager.TextTypeNames = GameTextType.GetTextTypeNames();
-
-                // Configure which text types should be stored for repeat
-                SpeechManager.ShouldStoreForRepeatPredicate = GameTextType.ShouldStoreForRepeat;
-
                 // Register Ren'Py/TMP-specific text cleaning patterns
                 RegisterTextCleanerPatterns();
-
-                // Initialize the speech system
-                if (SpeechManager.Initialize())
-                {
-                    Logger.Msg("Speech system initialized successfully");
-                    Logger.Msg(
-                        "Using default settings - All text types enabled, Speaker names included"
-                    );
-                }
-                else
-                {
-                    Logger.Warning("Speech system initialization returned false");
-                }
-
-                // Initialize special poem descriptions
-                SpecialPoemDescriptions.LoadDescriptions();
-                Logger.Msg(
-                    $"Special poem descriptions loaded: {SpecialPoemDescriptions.DescriptionCount} entries"
-                );
 
                 _isInitialized = true;
             }
@@ -115,10 +95,17 @@ namespace DDLCPlusAccess
             // Initialize speech system on first scene load (when Unity is ready)
             InitializeSpeechSystem();
 
+            // Proof of life, once the game's language is known (it is not yet during the preload scene).
+            if (!_announcedLoaded && sceneName != "LauncherPreload")
+            {
+                _announcedLoaded = true;
+                SpeechService.Announce(Loc.Get("ui.mod_loaded"), GameTextType.SystemMessage);
+            }
+
             // Announce scene changes
             if (sceneName == "LauncherScene")
             {
-                ClipboardUtils.OutputGameText("", "DDLC Plus launcher", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("ui.launcher"), TextType.Menu);
             }
         }
 
@@ -126,9 +113,18 @@ namespace DDLCPlusAccess
         {
             try
             {
-                if (Input.GetKeyDown(KeyCode.R))
+                // Letter hotkeys stay off while the player types their name.
+                bool typingName = IsTypingName();
+
+                if (!typingName && Input.GetKeyDown(KeyCode.R))
                 {
                     ClipboardUtils.RepeatCurrentDialogue();
+                }
+
+                // D: repeat the last scene description
+                if (!typingName && Input.GetKeyDown(KeyCode.D))
+                {
+                    SceneDescriber.RepeatLastDescription();
                 }
 
                 if (Input.GetKeyDown(KeyCode.C) && IsInSettingsApp())
@@ -184,6 +180,19 @@ namespace DDLCPlusAccess
             }
         }
 
+        private static bool IsTypingName()
+        {
+            try
+            {
+                var screens = RenpyScreenManager.Instance;
+                return screens != null && screens.IsScreenShowing(RenpyScreenID.NameInputScreen);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private void AnnounceDataCollectionPercentage()
         {
             try
@@ -192,7 +201,7 @@ namespace DDLCPlusAccess
                 {
                     float percentage = UnlockSystem.Instance.UnlockedPercentage;
                     int roundedPercentage = Mathf.RoundToInt(percentage);
-                    string message = $"Data collected: {roundedPercentage} percent";
+                    string message = Loc.Get("ui.data_collected", roundedPercentage);
 
                     Logger?.Msg($"Data collection percentage requested: {message}");
                     ClipboardUtils.OutputGameText("", message, TextType.SystemMessage);
@@ -204,7 +213,7 @@ namespace DDLCPlusAccess
                     );
                     ClipboardUtils.OutputGameText(
                         "",
-                        "Data collection percentage unavailable",
+                        Loc.Get("ui.data_unavailable"),
                         TextType.SystemMessage
                     );
                 }
@@ -214,7 +223,7 @@ namespace DDLCPlusAccess
                 Logger?.Error($"Error announcing data collection percentage: {ex.Message}");
                 ClipboardUtils.OutputGameText(
                     "",
-                    "Error retrieving data collection percentage",
+                    Loc.Get("ui.data_error"),
                     TextType.SystemMessage
                 );
             }
@@ -262,14 +271,14 @@ namespace DDLCPlusAccess
                 var jukeboxApp = UnityEngine.Object.FindObjectOfType<JukeboxApp>();
                 if (jukeboxApp?.JukeboxPlayer == null)
                 {
-                    ClipboardUtils.OutputGameText("", "No jukebox player active", TextType.Jukebox);
+                    ClipboardUtils.OutputGameText("", Loc.Get("ui.jukebox_none"), TextType.Jukebox);
                     return;
                 }
 
                 var currentTrack = jukeboxApp.JukeboxPlayer.GetCurrentTrack();
                 if (!currentTrack.CurrentTrackValid())
                 {
-                    ClipboardUtils.OutputGameText("", "No track playing", TextType.Jukebox);
+                    ClipboardUtils.OutputGameText("", Loc.Get("ui.jukebox_no_track"), TextType.Jukebox);
                     return;
                 }
 
@@ -278,7 +287,7 @@ namespace DDLCPlusAccess
                 {
                     ClipboardUtils.OutputGameText(
                         "",
-                        "No track information available",
+                        Loc.Get("ui.jukebox_no_info"),
                         TextType.Jukebox
                     );
                     return;
@@ -289,7 +298,7 @@ namespace DDLCPlusAccess
                 {
                     ClipboardUtils.OutputGameText(
                         "",
-                        $"Stopped on {trackInfo.TrackName}",
+                        Loc.Get("ui.jukebox_stopped", trackInfo.TrackName),
                         TextType.Jukebox
                     );
                     return;
@@ -307,7 +316,12 @@ namespace DDLCPlusAccess
                 string positionText = $"{currentMinutes}:{currentSeconds:D2}";
                 string totalText = $"{totalMinutes}:{totalSeconds:D2}";
 
-                string message = $"{trackInfo.TrackName}, {positionText} of {totalText}";
+                string message = Loc.Get(
+                    "ui.jukebox_position",
+                    trackInfo.TrackName,
+                    positionText,
+                    totalText
+                );
 
                 Logger?.Msg($"Jukebox position requested: {message}");
                 ClipboardUtils.OutputGameText("", message, TextType.Jukebox);
@@ -317,7 +331,7 @@ namespace DDLCPlusAccess
                 Logger?.Error($"Error announcing jukebox position: {ex.Message}");
                 ClipboardUtils.OutputGameText(
                     "",
-                    "Error retrieving playback position",
+                    Loc.Get("ui.jukebox_error"),
                     TextType.Jukebox
                 );
             }
@@ -325,7 +339,8 @@ namespace DDLCPlusAccess
 
         public override void OnDeinitializeMelon()
         {
-            SpeechManager.Stop();
+            // Prism is left to die with the game process: tearing down its COM/RPC state at exit
+            // can crash the game.
             Logger.Msg("Screen Reader Mod deinitialized.");
         }
 

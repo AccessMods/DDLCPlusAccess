@@ -1,107 +1,61 @@
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace DDLCPlusAccess
 {
+    /// <summary>
+    /// Localized names and descriptions of gallery images (CGs, wallpapers, poems, backgrounds,
+    /// sketches, promos, secrets) and of pictures opened from the Files app.
+    /// Strings live in Localization/*.txt as "imgname.&lt;asset&gt;" (short title) and
+    /// "img.&lt;asset&gt;" (full description), where &lt;asset&gt; is the asset name in lower case
+    /// with every run of other characters replaced by "_". Gallery poems quote the game's own
+    /// translation of the poem; special poems are handled by SpecialPoemDescriptions.
+    /// </summary>
     public static class DescriptionManager
     {
-        private static readonly Dictionary<string, Dictionary<string, string>> sectionDescriptions =
-            new Dictionary<string, Dictionary<string, string>>();
+        // Localized image variants share the base image's description
+        private static readonly Regex LanguageSuffix = new Regex(
+            @"_(en-us|spa-m9|spa|fr-fr|de-de|it-it|pt-br|pyc|ko|ja|zh-cn|zh-tw)\d?$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
+        );
 
-        static DescriptionManager()
+        public static string NormalizeKey(string imageName)
         {
-            // Register all section description dictionaries
-            RegisterSection("Poems", PoemDescriptions.Descriptions);
-            RegisterSection("Wallpapers", WallpaperDescriptions.Descriptions);
-            RegisterSection("Secrets", SecretDescriptions.Descriptions);
-            RegisterSection("Backgrounds", BackgroundDescriptions.Descriptions);
-            RegisterSection("Promos", PromoDescriptions.Descriptions);
-            RegisterSection("CGs", CGDescriptions.Descriptions);
-            RegisterSection("Sketches", SketchDescriptions.Descriptions);
+            if (string.IsNullOrWhiteSpace(imageName))
+                return "";
+            string name = LanguageSuffix.Replace(imageName.Trim(), "");
+            return Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9]+", "_").Trim('_');
         }
 
-        private static void RegisterSection(
-            string sectionName,
-            Dictionary<string, string> descriptions
-        )
-        {
-            sectionDescriptions[sectionName] = descriptions;
-        }
-
-        /// <summary>
-        /// Get description for an image by checking all sections
-        /// </summary>
-        /// <param name="imageName">The asset name of the image</param>
-        /// <returns>Description if found, empty string otherwise</returns>
+        /// <summary>Full localized description of an image, or "" if there is none.</summary>
         public static string GetDescription(string imageName)
         {
             if (string.IsNullOrEmpty(imageName))
                 return "";
 
-            // Check all sections for the image
-            foreach (var sectionDict in sectionDescriptions.Values)
-            {
-                if (sectionDict.TryGetValue(imageName, out string description))
-                {
-                    return description;
-                }
-            }
+            // Special poems
+            string special = SpecialPoemDescriptions.GetDescription(imageName);
+            if (!string.IsNullOrEmpty(special))
+                return special;
 
-            return "";
+            string key = "img." + NormalizeKey(imageName);
+            return Loc.Has(key) ? Loc.Get(key) : "";
         }
 
-        /// <summary>
-        /// Get description for an image from a specific section
-        /// </summary>
-        /// <param name="sectionName">The gallery section name</param>
-        /// <param name="imageName">The asset name of the image</param>
-        /// <returns>Description if found, empty string otherwise</returns>
-        public static string GetDescription(string sectionName, string imageName)
+        /// <summary>Short localized title of an image, or null if there is none.</summary>
+        public static string GetTitle(string imageName)
         {
-            if (string.IsNullOrEmpty(imageName) || string.IsNullOrEmpty(sectionName))
-                return "";
-
-            if (sectionDescriptions.TryGetValue(sectionName, out var sectionDict))
-            {
-                if (sectionDict.TryGetValue(imageName, out string description))
-                {
-                    return description;
-                }
-            }
-
-            return "";
+            if (string.IsNullOrEmpty(imageName))
+                return null;
+            string key = "imgname." + NormalizeKey(imageName);
+            return Loc.Has(key) ? Loc.Get(key) : null;
         }
 
         /// <summary>
         /// Check if an image has a description available
         /// </summary>
-        /// <param name="imageName">The asset name of the image</param>
-        /// <returns>True if description exists, false otherwise</returns>
         public static bool HasDescription(string imageName)
         {
             return !string.IsNullOrEmpty(GetDescription(imageName));
-        }
-
-        /// <summary>
-        /// Get all available sections
-        /// </summary>
-        /// <returns>List of section names</returns>
-        public static List<string> GetSections()
-        {
-            return new List<string>(sectionDescriptions.Keys);
-        }
-
-        /// <summary>
-        /// Get count of descriptions in a specific section
-        /// </summary>
-        /// <param name="sectionName">The gallery section name</param>
-        /// <returns>Number of descriptions in the section</returns>
-        public static int GetSectionCount(string sectionName)
-        {
-            if (sectionDescriptions.TryGetValue(sectionName, out var sectionDict))
-            {
-                return sectionDict.Count;
-            }
-            return 0;
         }
     }
 }

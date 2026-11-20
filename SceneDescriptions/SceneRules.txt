@@ -1,0 +1,82 @@
+# Generic description rules, applied to every story line (main labels) that is not
+# already covered by SceneEvents.txt.
+# Format:  kind:name = key [| cooldownSeconds]
+#   scene:<image>   a "scene <image>" statement      (keys starting with "bg." are only
+#   show:<image>    a "show <image>" statement        announced when the location changes)
+#   regex:<pattern> a show statement whose image name matches the regular expression
+#   expr:<name>     a python statement/expression mentioning <name>
+# Dialogue lines that switch a sprite (e.g. Yuri "3y5") are looked up as show:<character> <code>.
+# Default cooldown: the same description is not repeated within 20 seconds.
+
+# ---------------- locations
+scene:bg residential_day = bg.residential_day
+scene:bg class_day = bg.class_day
+scene:bg corridor = bg.corridor
+scene:bg club_day = bg.club_day
+scene:bg closet = bg.closet
+scene:bg house = bg.house
+scene:bg kitchen = bg.kitchen
+scene:bg bedroom = bg.bedroom
+scene:bg sayori_bedroom = bg.sayori_bedroom
+scene:bg music_room = bg.music_room
+scene:bg pmusicroom = bg.pmusicroom
+scene:bg pstairwell = bg.pstairwell
+scene:tos = bg.tos | 600
+show:bg club_day = bg.club_day
+show:bg closet = bg.closet
+show:bg corridor = bg.corridor
+
+# ---------------- pictures (CGs)
+scene:n_cg1_bg = cg.n_cg1
+scene:n_cg2_bg = cg.n_cg2
+scene:n_cg3_base = cg.n_cg3
+scene:s_cg1 = cg.s_cg1
+scene:s_cg2_base1 = cg.s_cg2
+scene:s_cg3 = cg.s_cg3
+scene:y_cg1_base = cg.y_cg1
+scene:y_cg2_bg = cg.y_cg2
+scene:y_cg3_base = cg.y_cg3
+scene:nm_base = cg.nm
+scene:ny_base = cg.ny
+scene:sm_base = cg.sm
+scene:sn_base = cg.sn
+scene:sy_base = cg.sy
+scene:ym_base = cg.ym
+scene:bsod = ev.bsod
+
+# ---------------- special sprites and images
+show:sayori glitch = spr.sayori_glitch
+show:sayori end-glitch = spr.sayori_end_glitch
+show:natsuki glitch1 = spr.natsuki_glitch1
+show:natsuki scream = spr.natsuki_scream
+show:natsuki vomit = spr.natsuki_vomit
+show:natsuki ghost_base = spr.natsuki_ghost
+show:natsuki ghost1 = spr.natsuki_ghost
+show:yuri glitch = spr.yuri_glitch
+show:yuri glitch2 = spr.yuri_glitch2
+show:yuri oneeye = spr.yuri_oneeye
+show:yuri dragon = spr.yuri_dragon
+show:yuri eyes1 = spr.yuri_eyes1
+show:yuri cuts = ev.y_cuts
+show:yuri stab_1 = ev.yk_stab | 60
+show:yuri ch32_y_good = spr.yuri_yandere | 45
+regex:^yuri \dy\d$ = spr.yuri_yandere | 45
+show:monika g1 = spr.monika_g1
+show:monika g2 = spr.monika_g2
+show:monika_bg = ev.monika_room | 600
+show:monika_room = ev.monika_room | 600
+show:monika_scare = ev.monika_scare
+show:monika_body_glitch1 = ev.monika_body_glitch
+show:room_glitch = ev.room_glitch | 10
+show:y_kill = ev.yk_body | 120
+show:y_glitch_head = ev.ch22_yuri_head
+show:n_cg1b = ev.n_cg1b
+show:yuripupils = ev.ch23_pupils
+show:yuri_eyes_lc = ev.y_eyes_close
+show:paper_glitch = ev.ch23_paper_glitch
+show:end = fx.end | 5
+show:intro = fx.splash | 5
+
+# ---------------- effects
+expr:_screen_tear = fx.screen_tear | 4
+expr:_screen_invert = fx.invert | 4
