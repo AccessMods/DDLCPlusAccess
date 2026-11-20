@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.0
+
+- The gallery is now fully translated: every picture, wallpaper, sketch, background and promo
+  description is read in the game's language, and gallery poems read the game's own
+  translation of the poem. Images are announced by a readable name (for example "Wallpaper:
+  Monika") instead of internal file names like "warning2".
+- Gallery captions and unlock conditions are read the way the game shows them, in your language.
+- All gallery messages (views, sections, positions, wallpaper actions) are translated.
+
 ## 2.2.0
 
 - Glitched and unusual poems now come with a description of how they look before their text:

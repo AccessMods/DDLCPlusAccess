@@ -78,10 +78,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Utilities/GlitchText.cs** - Detects the game's random glitch text (Latin Extended-A + rare symbols) and replaces it with a localized marker
 
-**DescriptionManager.cs** - Centralized image description system
+**DescriptionManager.cs** - Localized image titles and descriptions
 
-- Manages descriptions for gallery images (CGs, Wallpapers, Poems, Backgrounds, etc.)
-- Provides lookup methods by image name or section
+- Gallery images (CGs, wallpapers, poems, backgrounds, sketches, promos, secrets) and Files app pictures
+- Keys in `Localization/*.txt`: `imgname.<asset>` (short title) and `img.<asset>` (description); `<asset>` is the asset name lower-cased with other characters as `_`, language suffixes stripped
+- Gallery poems quote the game's own translation of the poem (title + text)
 
 ### Harmony Patching Architecture
 
@@ -159,8 +160,8 @@ Text cleaning is handled by UnityAccessibilityLib's `TextCleaner` with custom pa
 ### Adding New Image Descriptions
 
 1. Identify the image asset name in the game
-2. Add description to appropriate file in `ImageDescriptions/` folder
-3. Dictionary key = asset name, value = description text
+2. Add `imgname.<asset>` and `img.<asset>` to `Localization/en-us.txt` and all other language files (Files app pictures use `file.img.<asset>`)
+3. When the image shows game text (poems), quote the game's own translation from its Lines tables
 
 ### Debugging
 

@@ -43,23 +43,26 @@ namespace DDLCPlusAccess
         )
         {
             if (entry == null)
-                return "Unknown image";
+                return Loc.Get("gal.unknown_image");
 
             List<string> parts = new List<string>();
 
-            string entryName = entry.ImageRef?.AssetName ?? "Unknown image";
-            parts.Add(entryName);
+            string entryName = entry.ImageRef?.AssetName ?? "";
+            string title = ImageTitle(entry);
+            parts.Add(title);
 
-            // Add description if available
+            // The game's own caption, translated the way the game shows it
             if (!string.IsNullOrEmpty(entry.Description))
             {
-                parts.Add(entry.Description);
+                string caption = GameText(entry.Description);
+                if (caption != title)
+                    parts.Add(caption);
             }
 
-            // Add unlock condition if available
+            // Unlock condition, translated by the game
             if (!string.IsNullOrEmpty(entry.UnlockCondition))
             {
-                parts.Add($"Unlock condition: {entry.UnlockCondition}");
+                parts.Add(UnlockText(entry));
             }
 
             // Add wallpaper status by checking directly with the launcher
@@ -71,25 +74,65 @@ namespace DDLCPlusAccess
                 );
                 if (isCurrentWallpaper)
                 {
-                    parts.Add("Currently set as wallpaper");
+                    parts.Add(Loc.Get("gal.current_wallpaper"));
                 }
             }
 
             if (DescriptionManager.HasDescription(entryName))
             {
-                parts.Add("Press enter to read full image description");
+                parts.Add(Loc.Get("gal.press_enter"));
             }
 
             string message = string.Join(
                 " ",
                 parts.ConvertAll(part =>
-                    part.EndsWith(".") || part.EndsWith("!") || part.EndsWith("?")
-                        ? part
-                        : part + "."
+                    EndsSentence(part) ? part : part + "."
                 )
             );
 
-            return string.IsNullOrEmpty(prefix) ? message : $"{prefix} {message}";
+            return string.IsNullOrEmpty(prefix) ? message : Loc.Get(prefix, message);
+        }
+
+        private static bool EndsSentence(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return true;
+            char last = text[text.Length - 1];
+            return ".!?\u3002\uFF01\uFF1F\u2026".IndexOf(last) >= 0;
+        }
+
+        /// <summary>Text through the game's own localization (as the gallery shows it).</summary>
+        private static string GameText(string english)
+        {
+            if (string.IsNullOrEmpty(english))
+                return english;
+            try
+            {
+                return Renpy.Text.GetLocalisedString(english);
+            }
+            catch
+            {
+                return english;
+            }
+        }
+
+        /// <summary>Localized title of a gallery image (falls back to the game's caption).</summary>
+        private static string ImageTitle(GalleryConfiguration.GalleryEntry entry)
+        {
+            string asset = entry?.ImageRef?.AssetName;
+            string title = DescriptionManager.GetTitle(asset);
+            if (!string.IsNullOrEmpty(title))
+                return title;
+            if (!string.IsNullOrEmpty(entry?.Description))
+                return GameText(entry.Description);
+            return string.IsNullOrEmpty(asset) ? Loc.Get("gal.unknown_image") : asset;
+        }
+
+        /// <summary>"[ACQUISITION PROCEDURE] ..." as the game shows it, without the brackets.</summary>
+        private static string UnlockText(GalleryConfiguration.GalleryEntry entry)
+        {
+            string label = GameText("[ACQUISITION PROCEDURE]").Trim().TrimStart('[').TrimEnd(']');
+            return label + ": " + GameText(entry.UnlockCondition);
         }
 
         /// <summary>
@@ -102,7 +145,7 @@ namespace DDLCPlusAccess
             try
             {
                 ScreenReaderMod.Logger?.Msg("Gallery app opened");
-                ClipboardUtils.OutputGameText("", "Gallery opened", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("gal.opened"), TextType.Menu);
             }
             catch (System.Exception ex)
             {
@@ -150,7 +193,7 @@ namespace DDLCPlusAccess
                         )
                         {
                             var currentEntry = unlockedImages[currentIndex];
-                            string imageName = currentEntry.ImageRef?.AssetName ?? "Unknown image";
+                            string imageName = currentEntry.ImageRef?.AssetName ?? "";
 
                             // Get full description if available
                             string fullDescription = DescriptionManager.GetDescription(imageName);
@@ -158,12 +201,15 @@ namespace DDLCPlusAccess
                             string fullscreenMessage;
                             if (!string.IsNullOrEmpty(fullDescription))
                             {
-                                fullscreenMessage =
-                                    $"Fullscreen view: {imageName}. {fullDescription}";
+                                fullscreenMessage = Loc.Get(
+                                    "gal.fullscreen",
+                                    ImageTitle(currentEntry),
+                                    fullDescription
+                                );
                             }
                             else
                             {
-                                fullscreenMessage = "Fullscreen image view";
+                                fullscreenMessage = Loc.Get("gal.view_fullscreen");
                             }
 
                             ScreenReaderMod.Logger?.Msg(
@@ -182,10 +228,10 @@ namespace DDLCPlusAccess
                 // Handle other view changes
                 string message = viewName switch
                 {
-                    "Thumbnails" => "Gallery thumbnails view",
-                    "Preview" => "Image preview view",
-                    "FullScreen" => "Fullscreen image view", // Fallback if we couldn't get image info
-                    _ => $"{viewName} view",
+                    "Thumbnails" => Loc.Get("gal.view_thumbnails"),
+                    "Preview" => Loc.Get("gal.view_preview"),
+                    "FullScreen" => Loc.Get("gal.view_fullscreen"), // Fallback if we couldn't get image info
+                    _ => viewName,
                 };
 
                 ScreenReaderMod.Logger?.Msg($"Gallery view changed to: {viewName}");
@@ -241,7 +287,9 @@ namespace DDLCPlusAccess
                     }
 
                     string message =
-                        $"{sectionName} section, {itemCount} item{(itemCount != 1 ? "s" : "")}";
+                        itemCount == 1
+                            ? Loc.Get("gal.section_one", sectionName)
+                            : Loc.Get("gal.section_many", sectionName, itemCount);
 
                     ScreenReaderMod.Logger?.Msg($"Gallery section entered: {message}");
                     ClipboardUtils.OutputGameText("", message, TextType.Menu);
@@ -254,13 +302,12 @@ namespace DDLCPlusAccess
 
                     if (!string.IsNullOrEmpty(thumbnailId))
                     {
-                        string positionInfo = "";
+                        string message = ImageTitle(sceneThumbnail.EntryInfo);
                         if (sceneThumbnail.elementIndex >= 0)
                         {
-                            positionInfo = $", position {sceneThumbnail.elementIndex + 1}";
+                            message +=
+                                ", " + Loc.Get("gal.position", sceneThumbnail.elementIndex + 1);
                         }
-
-                        string message = $"{thumbnailId}{positionInfo}";
                         ClipboardUtils.OutputGameText("", message, TextType.Menu);
                     }
                 }
@@ -288,7 +335,7 @@ namespace DDLCPlusAccess
                     return;
 
                 var entry = __instance.EntryInfo;
-                string imageName = entry.ImageRef?.AssetName ?? "Unknown image";
+                string imageName = entry.ImageRef?.AssetName ?? "";
 
                 // Check if image is locked using reflection
                 var lockedField = AccessTools.Field(typeof(SceneThumbnail), "m_Locked");
@@ -304,34 +351,20 @@ namespace DDLCPlusAccess
                     return;
                 }
 
-                // Get section and position info
-                string sectionInfo = "";
-                if (__instance.gallerySection?.SectionTitle?.text != null)
-                {
-                    sectionInfo = $" from {__instance.gallerySection.SectionTitle.text}";
-                }
-
-                string positionInfo = "";
+                // Title, section and position
+                var parts = new List<string> { ImageTitle(entry) };
+                if (!string.IsNullOrEmpty(__instance.gallerySection?.SectionTitle?.text))
+                    parts.Add(__instance.gallerySection.SectionTitle.text);
                 if (__instance.elementIndex >= 0)
-                {
-                    positionInfo = $", position {__instance.elementIndex + 1}";
-                }
+                    parts.Add(Loc.Get("gal.position", __instance.elementIndex + 1));
+                string message = string.Join(", ", parts);
 
-                // Build message with locked status if applicable
-                string message;
+                // Locked status and how to unlock it
                 if (isLocked)
                 {
-                    message = $"Selected {imageName}{sectionInfo}{positionInfo}. Locked";
-
-                    // Add unlock condition if available
+                    message += ". " + Loc.Get("gal.locked");
                     if (!string.IsNullOrEmpty(entry.UnlockCondition))
-                    {
-                        message += $". {entry.UnlockCondition}";
-                    }
-                }
-                else
-                {
-                    message = $"Selected {imageName}{sectionInfo}{positionInfo}";
+                        message += ". " + UnlockText(entry);
                 }
 
                 ScreenReaderMod.Logger?.Msg(
@@ -362,8 +395,8 @@ namespace DDLCPlusAccess
                 if (entry == null)
                     return;
 
-                string message = BuildImageMessage(entry, __instance, "Viewing");
-                string entryName = entry.ImageRef?.AssetName ?? "Unknown image";
+                string message = BuildImageMessage(entry, __instance, "gal.viewing");
+                string entryName = entry.ImageRef?.AssetName ?? "";
 
                 // Initialize image index tracking when entering preview mode
                 var currentIndexField = AccessTools.Field(
@@ -421,7 +454,7 @@ namespace DDLCPlusAccess
                     )
                     {
                         var currentEntry = unlockedImages[currentIndex];
-                        string message = BuildImageMessage(currentEntry, __instance, "Next image:");
+                        string message = BuildImageMessage(currentEntry, __instance, "gal.next");
 
                         ScreenReaderMod.Logger?.Msg(
                             $"Gallery navigation: Next image {currentIndex + 1} of {unlockedImages.Count}"
@@ -480,7 +513,7 @@ namespace DDLCPlusAccess
                         string message = BuildImageMessage(
                             currentEntry,
                             __instance,
-                            "Previous image:"
+                            "gal.previous"
                         );
 
                         ScreenReaderMod.Logger?.Msg(
@@ -511,7 +544,7 @@ namespace DDLCPlusAccess
             try
             {
                 ScreenReaderMod.Logger?.Msg("Gallery: Returning to thumbnails view");
-                ClipboardUtils.OutputGameText("", "Returned to thumbnails", TextType.Menu);
+                ClipboardUtils.OutputGameText("", Loc.Get("gal.returned"), TextType.Menu);
             }
             catch (System.Exception ex)
             {
@@ -543,7 +576,7 @@ namespace DDLCPlusAccess
                         {
                             ClipboardUtils.OutputGameText(
                                 "",
-                                "Entering fullscreen mode",
+                                Loc.Get("gal.fullscreen_on"),
                                 TextType.Menu
                             );
                         }
@@ -551,7 +584,7 @@ namespace DDLCPlusAccess
                         {
                             ClipboardUtils.OutputGameText(
                                 "",
-                                "Exiting fullscreen mode",
+                                Loc.Get("gal.fullscreen_off"),
                                 TextType.Menu
                             );
                         }
@@ -609,14 +642,11 @@ namespace DDLCPlusAccess
                     )
                     {
                         var currentEntry = unlockedImages[currentIndex];
-                        string imageName = currentEntry.ImageRef?.AssetName ?? "Unknown image";
+                        string message = isCurrentWallpaper
+                            ? Loc.Get("gal.wallpaper_clear")
+                            : Loc.Get("gal.wallpaper_set", ImageTitle(currentEntry));
 
-                        string action = isCurrentWallpaper
-                            ? "Clear current wallpaper"
-                            : $"Set {imageName} as wallpaper";
-                        string message = $"{action}. Confirmation dialog opened.";
-
-                        ScreenReaderMod.Logger?.Msg($"Gallery wallpaper action: {action}");
+                        ScreenReaderMod.Logger?.Msg($"Gallery wallpaper action: {message}");
                         ClipboardUtils.OutputGameText("", message, TextType.SystemMessage);
                     }
                 }
@@ -659,9 +689,9 @@ namespace DDLCPlusAccess
                     )
                     {
                         var currentEntry = unlockedImages[currentIndex];
-                        string imageName = currentEntry.ImageRef?.AssetName ?? "Unknown image";
+                        string imageName = currentEntry.ImageRef?.AssetName ?? "";
 
-                        string message = $"Wallpaper set to {imageName}";
+                        string message = Loc.Get("gal.wallpaper_done", ImageTitle(currentEntry));
 
                         ScreenReaderMod.Logger?.Msg($"Gallery wallpaper confirmed: {imageName}");
                         ClipboardUtils.OutputGameText("", message, TextType.SystemMessage);
@@ -688,7 +718,7 @@ namespace DDLCPlusAccess
                 ScreenReaderMod.Logger?.Msg("Gallery wallpaper setting cancelled");
                 ClipboardUtils.OutputGameText(
                     "",
-                    "Wallpaper setting cancelled",
+                    Loc.Get("gal.wallpaper_cancelled"),
                     TextType.SystemMessage
                 );
             }
