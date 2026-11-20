@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.2.0
+
+- Glitched and unusual poems now come with a description of how they look before their text:
+  Sayori's "Get out of my head" poem, Natsuki's encoded poem, Yuri's "Wheel" and her final
+  scrawled poem, both versions of Monika's "Save Me", and the stained papers in the side stories.
+- Special poems are described in every language, quoting the game's own translation of their
+  text. Before, the descriptions were English only, and in some languages they were missing.
+  The gallery's special poems use the same descriptions.
+- Pictures opened from the in-game Files app are described (hxppy thxughts.png) instead of only
+  saying "not a text file". The file viewer's messages are now translated too.
+
 ## 2.1.0
 
 - Scene descriptions: the mod now describes what happens on screen as the story plays. It covers

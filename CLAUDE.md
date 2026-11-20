@@ -72,6 +72,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - One embedded `Localization/<lang>.txt` per language (`key = value`); `en-us.txt` is the master, missing keys fall back to English
 - New user-facing strings must be added to all 12 files
 
+**Utilities/PoemVisualDescriptions.cs** - Recognizes glitched/unusual poems (by raw author/title/text) and stained papers (`m_Paper`); `PoemPatches` speaks the `poem.desc_*` / `poem.paper_*` description before the poem
+
+**Utilities/SpecialPoemDescriptions.cs** - Maps special poem images in any language variant (`poem_special1_spa`, `_th`, `_original`, `gallery_special*`) to localized `poem.special*` keys; their text quotes the game's own translation
+
 **Utilities/GlitchText.cs** - Detects the game's random glitch text (Latin Extended-A + rare symbols) and replaces it with a localized marker
 
 **DescriptionManager.cs** - Centralized image description system

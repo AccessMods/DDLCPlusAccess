@@ -37,6 +37,11 @@ namespace DDLCPlusAccess
             if (string.IsNullOrEmpty(imageName))
                 return "";
 
+            // Special poems are localized
+            string special = SpecialPoemDescriptions.GetDescription(imageName);
+            if (!string.IsNullOrEmpty(special))
+                return special;
+
             // Check all sections for the image
             foreach (var sectionDict in sectionDescriptions.Values)
             {

@@ -39,12 +39,6 @@ namespace DDLCPlusAccess
                 // Register Ren'Py/TMP-specific text cleaning patterns
                 RegisterTextCleanerPatterns();
 
-                // Initialize special poem descriptions
-                SpecialPoemDescriptions.LoadDescriptions();
-                Logger.Msg(
-                    $"Special poem descriptions loaded: {SpecialPoemDescriptions.DescriptionCount} entries"
-                );
-
                 _isInitialized = true;
             }
             catch (Exception ex)
